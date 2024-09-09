@@ -1,0 +1,33 @@
+<svg id="Group_102" data-name="Group 102" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="398.23" height="231.9" viewBox="0 0 398.23 231.9">
+  <defs>
+    <radialGradient id="radial-gradient" cx="0.5" cy="0.5" r="0.5" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#efb44c"/>
+      <stop offset="1" stop-color="#ad6830"/>
+    </radialGradient>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_60" data-name="Rectangle 60" width="398.23" height="231.9" fill="none"/>
+    </clipPath>
+  </defs>
+  <ellipse id="Ellipse_5" data-name="Ellipse 5" cx="112.173" cy="112.173" rx="112.173" ry="112.173" transform="translate(87.085 4.098)" fill="url(#radial-gradient)"/>
+  <g id="Group_95" data-name="Group 95" transform="translate(0 0)">
+    <g id="Group_94" data-name="Group 94" clip-path="url(#clip-path)">
+      <line id="Line_129" data-name="Line 129" y2="221.252" transform="translate(198.834 5.326)" fill="none" stroke="#050605" stroke-miterlimit="10" stroke-width="3"/>
+      <line id="Line_130" data-name="Line 130" x1="225.483" transform="translate(86.093 115.951)" fill="none" stroke="#050605" stroke-miterlimit="10" stroke-width="3"/>
+      <path id="Path_771" data-name="Path 771" d="M33.473,170.243A109.309,109.309,0,0,0,68.462,90.179,109.317,109.317,0,0,0,33.473,10.11" transform="translate(87.606 25.775)" fill="none" stroke="#050605" stroke-miterlimit="10" stroke-width="3"/>
+      <path id="Path_772" data-name="Path 772" d="M101.781,170.243A109.068,109.068,0,0,1,97.835,13.982Q99.761,12,101.781,10.11" transform="translate(174.806 25.775)" fill="none" stroke="#050605" stroke-miterlimit="10" stroke-width="3"/>
+      <path id="Path_773" data-name="Path 773" d="M136.543,1.5c62.267,0,112.742,49.53,112.742,110.624S198.809,222.752,136.543,222.752,23.8,173.222,23.8,112.124,74.276,1.5,136.543,1.5Z" transform="translate(62.292 3.826)" fill="none" stroke="#050605" stroke-linecap="square" stroke-miterlimit="10" stroke-width="3"/>
+      <path id="Path_780" data-name="Path 780" d="M0,0H47.022" transform="translate(276.587 35.885)" fill="none" stroke="#ce9d3e" stroke-width="4"/>
+      <line id="Line_132" data-name="Line 132" x2="50.606" y2="0.42" transform="translate(276.587 196.017)" fill="none" stroke="#ce9d3e" stroke-miterlimit="10" stroke-width="4"/>
+      <line id="Line_133" data-name="Line 133" x2="54.591" transform="translate(291.719 115.951)" fill="none" stroke="#ce9d3e" stroke-miterlimit="10" stroke-width="4"/>
+      <path id="Path_774" data-name="Path 774" d="M145.944,78.6H96.395V25.155h49.549" transform="translate(252.287 64.129)" fill="none" stroke="#ce9d3e" stroke-miterlimit="10" stroke-width="4"/>
+      <path id="Path_775" data-name="Path 775" d="M142.012,56.026H90.39V2.581h51.622" transform="translate(234.498 6.581)" fill="none" stroke="#ce9d3e" stroke-miterlimit="10" stroke-width="4"/>
+      <path id="Path_776" data-name="Path 776" d="M139.939,101.143H90.39V47.7h49.549" transform="translate(236.571 121.596)" fill="none" stroke="#ce9d3e" stroke-miterlimit="10" stroke-width="4"/>
+      <line id="Line_134" data-name="Line 134" x1="50.606" y2="0.42" transform="translate(71.037 196.017)" fill="none" stroke="#ce9d3e" stroke-miterlimit="10" stroke-width="4"/>
+      <line id="Line_135" data-name="Line 135" x1="50.606" y1="0.421" transform="translate(71.037 35.464)" fill="none" stroke="#ce9d3e" stroke-miterlimit="10" stroke-width="4"/>
+      <line id="Line_136" data-name="Line 136" x1="54.591" transform="translate(51.921 115.951)" fill="none" stroke="#ce9d3e" stroke-miterlimit="10" stroke-width="4"/>
+      <path id="Path_777" data-name="Path 777" d="M0,25.124H49.549V78.569H0" transform="translate(0 64.049)" fill="none" stroke="#ce9d3e" stroke-miterlimit="10" stroke-width="4"/>
+      <path id="Path_778" data-name="Path 778" d="M6,47.7H55.553v53.445H6" transform="translate(15.716 121.597)" fill="none" stroke="#ce9d3e" stroke-miterlimit="10" stroke-width="4"/>
+      <path id="Path_779" data-name="Path 779" d="M6,2.581H55.553V56.026H6" transform="translate(15.716 6.581)" fill="none" stroke="#ce9d3e" stroke-miterlimit="10" stroke-width="4"/>
+    </g>
+  </g>
+</svg>
