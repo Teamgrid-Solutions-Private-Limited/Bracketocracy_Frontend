@@ -10,6 +10,7 @@ import Instractions from '@/components/how-to-play/index';
 import MyLeagues from '@/components/my-leagues/index';
 import Edit from '@/components/edit_profile/index';
 import Header from '@/components/header/index';
+import ForgetPassword from '@/components/Login/ForgetPassword';
 import Splashscreen from '@/components/splash_screen/index';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Bracket from "@/components/the bracket/Index";
@@ -53,6 +54,7 @@ const RootNavigator = () => {
         <Stack.Screen name="my-leagues" component={MyLeagues} />
         <Stack.Screen name='bracket' component={Bracket} />
         <Stack.Screen name ="message" component={Message} />
+        <Stack.Screen name ="forget-password" component={ForgetPassword} />
       </Stack.Navigator>
     </NavigationContainer>
   );
