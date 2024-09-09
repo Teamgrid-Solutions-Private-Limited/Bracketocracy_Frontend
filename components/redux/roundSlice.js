@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { API_MAIN } from "./API";
 
 const initialState = {
   roundlist: [],
@@ -10,7 +11,7 @@ const initialState = {
 // Fetch Round Data (GET method)
 export const getRounds = createAsyncThunk("getRounds", async () => {
   try {
-    const response = await axios.get("http://192.168.1.26:6010/round/round/view");
+    const response = await axios.get(`${API_MAIN}/round/round/view`);
     return response.data;
   } catch (error) {
     throw error;

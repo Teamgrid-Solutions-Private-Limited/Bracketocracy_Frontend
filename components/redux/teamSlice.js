@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { API_MAIN } from './API';
 
 const initialState = {
   teams: [],
@@ -9,7 +10,7 @@ const initialState = {
 
 export const getTeams = createAsyncThunk('teams/getTeams', async () => {
   try {
-    const response = await axios.get('http://192.168.1.26:6010/team/team/view');
+    const response = await axios.get(`${API_MAIN}/team/team/view`);
     return response.data.info; 
   } catch (error) {
     throw error;

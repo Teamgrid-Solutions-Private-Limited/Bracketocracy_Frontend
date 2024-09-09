@@ -4,8 +4,9 @@ import moment from "moment";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserBets, placeBet, updateRound } from "../redux/betSlice";
 
-const PlayIn = ({ matches, rounds, teams, getRemainingTime }) => {
+const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
   const [selectedTeams, setSelectedTeams] = useState({});
+  const [disabled, setDisabled] = useState(false);
   const dispatch = useDispatch();
   const userBets = useSelector((state) =>
     state.bet.userBets && state.bet.userBets.length > 0
@@ -14,80 +15,116 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime }) => {
   );
 
   const handleTeamSelect = (matchId, teamName) => {
-    rounds.map((val)=>{
-      if (val.biddingEndDate &&
-        getRemainingTime(val.biddingEndDate)) {
-        return setSelectedTeams((prev) => ({
-          ...prev,
-          [matchId]: teamName,
-        }));
+    // Check if bidding period is over for the specific match
+    rounds.find((round) => {
+      if (round.slug === "play-in-matches") {
+        const { formattedTime, remainingTimeInMs } = getRemainingTime(
+          round.biddingEndDate
+        );
+
+        if (remainingTimeInMs <= 0) {
+          console.log("Remaining time for bidding:", remainingTimeInMs);
+          return setDisabled(true);
+        } else return setDisabled(false);
+
+        // console.log(`Remaining time for bidding: ${formattedTime}`);
       }
-    })
+    });
+    // console.log(round, "round");
+
+    // Find the selected team's ID based on the teamName
+    const selectedTeam = teams.find((team) => team.name === teamName);
+    if (!selectedTeam) {
+      console.log("Team not found.");
+      return;
+    }
+
+    // Update the selected team for the match using the team ID
+    setSelectedTeams((prev) => ({
+      ...prev,
+      [matchId]: selectedTeam._id, // Store the ID instead of name
+    }));
+
+    console.log(
+      `Selected team ${selectedTeam.name} (ID: ${selectedTeam._id}) for match ${matchId}`
+    );
   };
 
   useEffect(() => {
-    const userId = "66c42a0a0d89d3b125998fe4";
-    dispatch(fetchUserBets({ userId }));
-  }, [dispatch]);
+    if (userId) {
+      dispatch(fetchUserBets({ userId }));
+    }
+  }, [dispatch, userId]);
 
   useEffect(() => {
-    const userId = "66c42a0a0d89d3b125998fe4"; 
-    const seasonId = "66b5e399264761b0e2656168"; 
-    const status = 0;
+    if (!disabled && userId && Object.keys(selectedTeams).length > 0) {
+      const seasonId = "66b5e399264761b0e2656168";
+      const status = 0;
 
-    if (Object.keys(selectedTeams).length > 0) {
-      const [matchId, selectedWinner] = Object.entries(selectedTeams)[0];
-      
-      const matchingBets = userBets.filter((bet) => bet.matchId._id === matchId);
+      const [matchId, selectedWinnerId] = Object.entries(selectedTeams)[0]; // `selectedWinnerId` should be an ID
+
+      // Find if the user has already placed a bet on this match
+      const matchingBets = userBets.filter(
+        (bet) => bet.matchId._id === matchId
+      );
 
       if (matchingBets.length > 0) {
+        // If there's an existing bet, update it
         matchingBets.forEach((existingBet) => {
           if (existingBet._id) {
-            dispatch(updateRound({
-              id: existingBet._id,
-              matchId,
-              userId,
-              selectedWinner,
-              status,
-              seasonId
-            }))
-            .unwrap()
-            .then(() => {
-              dispatch(fetchUserBets({ userId }));
-            })
-            .catch((error) => {
-              console.error("Failed to update round:", error);
-            });
+            dispatch(
+              updateRound({
+                id: existingBet._id,
+                matchId,
+                userId,
+                selectedWinner: selectedWinnerId, // Use ID here
+                status,
+                seasonId,
+              })
+            )
+              .unwrap()
+              .then(() => {
+                dispatch(fetchUserBets({ userId }));
+              })
+              .catch((error) => {
+                console.error("Failed to update round:", error);
+              });
           }
         });
       } else {
-        dispatch(placeBet({
-          matchId,
-          userId,
-          selectedWinner,
-          status,
-          seasonId
-        }))
-        .unwrap()
-        .then(() => {
-          dispatch(fetchUserBets({ userId }));
-        })
-        .catch((error) => {
-          console.error("Failed to place bet:", error);
-        });
+        // Place a new bet if there's no existing one
+        dispatch(
+          placeBet({
+            matchId,
+            userId,
+            selectedWinner: selectedWinnerId, // Use ID here
+            status,
+            seasonId,
+          })
+        )
+          .unwrap()
+          .then(() => {
+            dispatch(fetchUserBets({ userId }));
+          })
+          .catch((error) => {
+            console.error("Failed to place bet:", error);
+          });
       }
 
+      // Clear the selected team for the processed match
       setSelectedTeams({});
     }
-  }, [selectedTeams, userBets, dispatch]);
+  }, [selectedTeams, userBets, dispatch, userId, disabled]);
+
+  // console.log("Selected teams:", selectedTeams);
+  // console.log("User bets:", userBets);
 
   if (matches.length > 0) {
     const championMatchRound = matches.find(
-      (match) => match?.round?.slug === "play-in-matches"
+      (matches) => matches?.round?.slug === "play-in-matches"
     );
 
     if (!championMatchRound) return null;
-
     return (
       <View style={styles.matchContainer}>
         {rounds.length > 0 &&
@@ -97,17 +134,19 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime }) => {
                 <View style={styles.container} key={round._id}>
                   <Text style={styles.title}>{round.name}</Text>
                   <Text style={styles.date}>
-                    {moment(
-                      round.playDate,
-                      "ddd MMM DD YYYY HH:mm:ss [GMT]Z"
-                    ).format("DD MMMM YYYY")}
+                    {moment(round.playDate).format("DD MMMM YYYY")}
                   </Text>
                   <Text style={styles.selectionPeriod}>
-                    {round.biddingEndDate &&
-                    getRemainingTime(round.biddingEndDate)
-                      ? `SELECTION ENDS IN (${getRemainingTime(
-                          round.biddingEndDate
-                        )})`
+                    {round.biddingEndDate
+                      ? // Extract formattedTime from the result of getRemainingTime
+                        (() => {
+                          const { formattedTime } = getRemainingTime(
+                            round.biddingEndDate
+                          );
+                          return formattedTime
+                            ? `SELECTION ENDS IN (${formattedTime})`
+                            : "SELECTION PERIOD ENDED";
+                        })()
                       : "SELECTION PERIOD ENDED"}
                   </Text>
                 </View>
@@ -131,10 +170,10 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime }) => {
                       onPress={() =>
                         handleTeamSelect(val._id, val.teamOne.name)
                       }
+                      disabled={disabled}
                     >
                       <View
                         style={
-                          userBets.length > 0 &&
                           userBets.some(
                             (bet) => bet.selectedWinner._id === val.teamOne._id
                           )
@@ -148,52 +187,48 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime }) => {
                             style={styles.teamLogo}
                             resizeMode="cover"
                           />
-                          {teams.find(
-                            (team) => team.name === val.teamOne.name
-                          ) && (
-                            <Text style={styles.teamRank}>
-                              {
-                                teams.find(
-                                  (team) => team.name === val.teamOne.name
-                                ).seed
-                              }
-                            </Text>
-                          )}
-                          <Text
-                            style={
-                              val.teamOneScore > val.teamTwoScore
-                                ? styles.selectTeam
-                                : styles.teamName
+                          <Text style={styles.teamRank}>
+                            {
+                              teams.find(
+                                (team) => team.name === val.teamOne.name
+                              )?.seed
                             }
-                          >
+                          </Text>
+                          <Text style={styles.teamName}>
                             {val.teamOne.name}
                           </Text>
                         </View>
                         <View style={styles.teamScoreContainer}>
-                          <Text
-                            style={
-                              val.teamOneScore > val.teamTwoScore
-                                ? styles.selectTeam
-                                : styles.teamName
-                            }
-                          >
+                          <Text style={styles.teamName}>
                             {val.teamOneScore}
                           </Text>
                           <Image
-                            source={require("../../assets/images/basket-ball.png")}
+                            source={
+                              userBets.some(
+                                (bet) =>
+                                  bet.selectedWinner._id === val.teamOne._id
+                              )
+                                ? require("../../assets/images/basket-ball2.png")
+                                : require("../../assets/images/basket-ball.png")
+                            }
                             style={styles.basketballImage}
                           />
                         </View>
                       </View>
                     </Pressable>
+
                     <Pressable
                       onPress={() =>
-                        handleTeamSelect(val._id, val.teamTwo.name)
+                        handleTeamSelect(
+                          val._id,
+                          val.teamTwo.name,
+                          val.round.biddingEndDate
+                        )
                       }
+                      disabled={disabled}
                     >
                       <View
                         style={
-                          userBets.length > 0 &&
                           userBets.some(
                             (bet) => bet.selectedWinner._id === val.teamTwo._id
                           )
@@ -207,39 +242,30 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime }) => {
                             style={styles.teamLogo}
                             resizeMode="cover"
                           />
-                          {teams.find(
-                            (team) => team.name === val.teamTwo.name
-                          ) && (
-                            <Text style={styles.teamRank}>
-                              {
-                                teams.find(
-                                  (team) => team.name === val.teamTwo.name
-                                ).seed
-                              }
-                            </Text>
-                          )}
-                          <Text
-                            style={
-                              val.teamTwoScore > val.teamOneScore
-                                ? styles.selectTeam
-                                : styles.teamName
+                          <Text style={styles.teamRank}>
+                            {
+                              teams.find(
+                                (team) => team.name === val.teamTwo.name
+                              )?.seed
                             }
-                          >
+                          </Text>
+                          <Text style={styles.teamName}>
                             {val.teamTwo.name}
                           </Text>
                         </View>
                         <View style={styles.teamScoreContainer}>
-                          <Text
-                            style={
-                              val.teamTwoScore > val.teamOneScore
-                                ? styles.selectTeam
-                                : styles.teamName
-                            }
-                          >
+                          <Text style={styles.teamName}>
                             {val.teamTwoScore}
                           </Text>
                           <Image
-                            source={require("../../assets/images/basket-ball.png")}
+                            source={
+                              userBets.some(
+                                (bet) =>
+                                  bet.selectedWinner._id === val.teamTwo._id
+                              )
+                                ? require("../../assets/images/basket-ball2.png")
+                                : require("../../assets/images/basket-ball.png")
+                            }
                             style={styles.basketballImage}
                           />
                         </View>
@@ -254,7 +280,6 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime }) => {
       </View>
     );
   }
-  return null; // In case matches are empty
 };
 
 export default PlayIn;
@@ -349,20 +374,20 @@ const styles = StyleSheet.create({
     height: 20,
   },
   teamRank: {
-    fontSize: 11,
+    fontSize: 12,
     marginRight: 10,
   },
   teamName: {
     fontSize: 15,
     marginRight: 10,
-    color: "#888",
-    fontWeight: "800",
+    color: "#000",
+    fontWeight: "700",
   },
   selectTeam: {
-    fontSize: 15,
+    fontSize: 17,
     marginRight: 10,
     color: "#000",
-    fontWeight: "800",
+    fontWeight: "bold",
   },
   basketballImage: {
     width: 24,

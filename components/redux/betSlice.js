@@ -1,12 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { API_MAIN } from "./API";
 
 export const placeBet = createAsyncThunk(
   "bet/placeBet",
   async ({ matchId, userId, selectedWinner, status, seasonId }, thunkAPI) => {
     try {
       const response = await axios.post(
-        "http://192.168.1.26:6010/bet/bet/placebet",
+        `${API_MAIN}/bet/bet/placebet`,
         {
           matchId,
           userId,
@@ -30,7 +31,7 @@ export const fetchUserBets = createAsyncThunk(
   async ({ userId }, thunkAPI) => {
     try {
       const response = await axios.get(
-        `http://192.168.1.26:6010/bet/bet/user-bets/${userId}`
+        `${API_MAIN}/bet/bet/user-bets/${userId}`
       );
       return response.data;
     } catch (error) {
@@ -50,7 +51,7 @@ export const updateRound = createAsyncThunk(
   ) => {
     try {
       const response = await axios.put(
-        `http://192.168.1.26:6010/bet/round/update/${id}`,
+        `${API_MAIN}/bet/bet/update/${id}`,
         { matchId, userId, selectedWinner, status, seasonId }
       );
       return response.data;

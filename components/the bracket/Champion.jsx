@@ -18,17 +18,19 @@ const Champion = ({ matches, rounds, getRemainingTime }) => {
             return (
               <View key={round._id}>
                 <Text style={styles.date}>
-                  {moment(
-                    round.playDate,
-                    "ddd MMM DD YYYY HH:mm:ss [GMT]Z"
-                  ).format("DD MMMM YYYY")}
+                  {moment(round.playDate).format("DD MMMM YYYY")}
                 </Text>
                 <Text style={styles.selectionPeriod}>
-                  {round.biddingEndDate &&
-                  getRemainingTime(round.biddingEndDate)
-                    ? `SELECTION ENDS IN (${getRemainingTime(
-                        round.biddingEndDate
-                      )})`
+                  {round.biddingEndDate
+                    ? // Extract formattedTime from the result of getRemainingTime
+                      (() => {
+                        const { formattedTime } = getRemainingTime(
+                          round.biddingEndDate
+                        );
+                        return formattedTime
+                          ? `SELECTION ENDS IN (${formattedTime})`
+                          : "SELECTION PERIOD ENDED";
+                      })()
                     : "SELECTION PERIOD ENDED"}
                 </Text>
               </View>
