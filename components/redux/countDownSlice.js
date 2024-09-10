@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { API_MAIN } from "./API";
 
 // GET: Fetch all countdowns
-const fetchCountdowns = createAsyncThunk(
+export const fetchCountdowns = createAsyncThunk(
   "countdown/fetchCountdowns",
   async () => {
     const res = await fetch(`${API_MAIN}/countdown/countdown/show`);
@@ -14,35 +14,32 @@ const fetchCountdowns = createAsyncThunk(
   }
 );
 
-
 const countdownSlice = createSlice({
-    name: "countdown",
-    initialState: {
-      countdowns: [],
-      isLoader: false,
-      isError: false,
-      errorMessage: "",
-    },
-    extraReducers: (builder) => {
-      // GET request handling
-      builder.addCase(fetchCountdowns.pending, (state) => {
+  name: "countdown",
+  initialState: {
+    countdowns: [],
+    isLoader: false,
+    isError: false,
+    errorMessage: "",
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchCountdowns.pending, (state) => {
         state.isLoader = true;
-      });
-      builder.addCase(fetchCountdowns.fulfilled, (state, action) => {
+      })
+      .addCase(fetchCountdowns.fulfilled, (state, action) => {
         state.isLoader = false;
         state.countdowns = action.payload;
         state.isError = false;
         state.errorMessage = "";
-      });
-      builder.addCase(fetchCountdowns.rejected, (state, action) => {
+      })
+      .addCase(fetchCountdowns.rejected, (state, action) => {
         state.isLoader = false;
         state.isError = true;
         state.errorMessage = action.error.message;
       });
-    },
+  },
 });
 
-// Export the async thunks and reducer
-export { fetchCountdowns };
+// Export the reducer
 export default countdownSlice.reducer;
-  

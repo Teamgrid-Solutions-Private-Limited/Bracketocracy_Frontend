@@ -39,12 +39,12 @@ const AllMatches = ({ matches, allMatches }) => {
   const rounds = useSelector((state) =>
     state.round.roundlist ? state?.round?.roundlist : []
   );
-  console.log("rounds", rounds);
+  // console.log("rounds", rounds);
 
   const teams = useSelector((state) =>
     state.team.teams ? state.team.teams : []
   );
-  console.log("teams", teams);
+  // console.log("teams", teams);
 
   const getRemainingTime = (biddingEndDate) => {
     const now = new Date();

@@ -1,5 +1,6 @@
 import {
   Image,
+  Linking,
   StyleSheet,
   Text,
   TextInput,
@@ -12,7 +13,6 @@ import { useDispatch } from "react-redux";
 import { loginUser } from "../redux/loginSlice";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Checkbox from "expo-checkbox";
-import axios from "axios";
 import { API_MAIN } from "../redux/API";
 
 const SignIn = ({ navigation }) => {
@@ -27,9 +27,9 @@ const SignIn = ({ navigation }) => {
       navigation.navigate('splash-screen');
     })
   };
-  // const google = async() => {
-  //   console.log(await axios.post(`${API_MAIN}/auth/google`))
-  // }
+  const google = async() => {
+   Linking.openURL(`${API_MAIN}/auth/google`);
+  }
   return (
     <View style={styles.container}>
       <Image source={require('../../assets/images/bracketocracy-dark-logo.png')} style={styles.logo} />
@@ -61,9 +61,12 @@ const SignIn = ({ navigation }) => {
           </TouchableOpacity>
         </View>
         <View style={styles.rememberContainer}>
+          <View style={styles.wrapper}>
           <Checkbox value={checkbox} onValueChange={setCheckbox} style={styles.checkboxContainer}/>
           <Text style={styles.rememberText}>Remember Me</Text>
-          <TouchableOpacity>
+          </View>
+          
+          <TouchableOpacity onPress={() => navigation.navigate('forget-password')}>
             <Text style={styles.forgotPassword}>Forgot password?</Text>
           </TouchableOpacity>
         </View>
@@ -84,7 +87,7 @@ const SignIn = ({ navigation }) => {
               style={styles.img}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.socialButton} >
+          <TouchableOpacity style={styles.socialButton} onPress={google}>
             <Image
               source={require("../../assets/images/google.png")}
               style={styles.img}
@@ -105,6 +108,9 @@ const styles = StyleSheet.create({
     height: "auto",
     backgroundColor: "#f2f1ed",
     paddingHorizontal: 25,
+  },
+  wrapper: {
+    flexDirection: 'row',
   },
   logo: {
     width: '75%',
@@ -149,6 +155,7 @@ const styles = StyleSheet.create({
   
   rememberContainer: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
   },

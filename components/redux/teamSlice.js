@@ -27,7 +27,7 @@ const teamSlice = createSlice({
         state.status = 'loading';
       })
       .addCase(getTeams.fulfilled, (state, action) => {
-        console.log(state.teams);
+        // console.log(state.teams);
         
         state.status = 'succeeded';
         state.teams = action.payload;

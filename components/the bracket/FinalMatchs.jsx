@@ -24,10 +24,10 @@ const FinalMatchs = ({ matches, rounds, teams, getRemainingTime, userId }) => {
         );
 
         if (remainingTimeInMs <= 0) {
-          console.log(
-            "Bidding period is over. Can't select team",
-            remainingTimeInMs
-          );
+          // console.log(
+          //   "Bidding period is over. Can't select team",
+          //   remainingTimeInMs
+          // );
           return setDisabled(true);
         } else return setDisabled(false);
 
@@ -49,9 +49,9 @@ const FinalMatchs = ({ matches, rounds, teams, getRemainingTime, userId }) => {
       [matchId]: selectedTeam._id, // Store the ID instead of name
     }));
 
-    console.log(
-      `Selected team ${selectedTeam.name} (ID: ${selectedTeam._id}) for match ${matchId}`
-    );
+    // console.log(
+    //   `Selected team ${selectedTeam.name} (ID: ${selectedTeam._id}) for match ${matchId}`
+    // );
   };
 
   useEffect(() => {
@@ -111,7 +111,7 @@ const FinalMatchs = ({ matches, rounds, teams, getRemainingTime, userId }) => {
             dispatch(fetchUserBets({ userId }));
           })
           .catch((error) => {
-            console.error("Failed to place bet:", error);
+            // console.error("Failed to place bet:", error);
           });
       }
 

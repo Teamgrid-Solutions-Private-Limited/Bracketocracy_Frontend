@@ -16,7 +16,7 @@ const Tabs = () => {
   const matches = useSelector((state) =>
     state?.match?.matches?.info ? state?.match?.matches?.info : []
   );
-  console.log(matches, "matches");
+  // console.log(matches, "matches");
 
   const filteredMatches = matches.filter((val) => {
     if (activeTab === 1) return val.zone.slug === "WEST";

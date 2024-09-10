@@ -121,7 +121,7 @@ const betSlice = createSlice({
           // Optional: Add the updated bet if it does not exist
           state.userBets=action.payload;
         }
-        console.log("Update successful, payload:", action.payload);
+        // console.log("Update successful, payload:", action.payload);
       })
 
       .addCase(updateRound.rejected, (state, action) => {

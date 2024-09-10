@@ -7,7 +7,9 @@ const CountdownTimer = () => {
   const countDown = useSelector((state) =>
     state?.count?.countdowns?.info ? state.count.countdowns.info : []
   );
+
   console.log(countDown);
+  
 
   const dispatch = useDispatch();
   const [timeLeft, setTimeLeft] = useState("");
@@ -17,13 +19,14 @@ const CountdownTimer = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (countDown.length === 0 || !countDown[0]?.updated) return; // Add a guard to ensure `countDown[0]` exists
+    if (countDown.length === 0 || !countDown[0]?.updated) return;
 
-    const targetDate = new Date(countDown[0].updated).getTime(); // The target countdown date
+    // Ensure that `countDown[0].updated` is a valid date
+    const targetDate = new Date(countDown[0].updated).getTime();
 
     const updateTimeLeft = () => {
       const now = new Date().getTime();
-      const distance = targetDate - now; // Time left until target date
+      const distance = targetDate - now;
 
       if (distance > 0 && countDown[0].status == 1) {
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -31,22 +34,25 @@ const CountdownTimer = () => {
           (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
         );
         const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        // const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        return setTimeLeft(`${days}d : ${hours}h : ${minutes}m`);
+        setTimeLeft(`${days}d : ${hours}h : ${minutes}m`);
       } else if (distance < 0) {
-        return setTimeLeft(null);
+        setTimeLeft("Countdown finished"); // Display a message instead of null
       }
     };
 
+    // Run the interval to update the countdown every second
     const intervalId = setInterval(updateTimeLeft, 1000);
 
+    // Clear interval when component unmounts
     return () => clearInterval(intervalId);
   }, [countDown]);
 
   return (
     <View style={{flex:1, width:'100%', alignItems:'center', marginTop:'10%'}}>
-      <View style={styles.container}><Text style={styles.text}>{timeLeft ? timeLeft : "Loading..."}</Text></View>
+      <View style={styles.container}>
+        <Text style={styles.text}>{timeLeft ? timeLeft : "Loading..."}</Text>
+      </View>
     </View>
   );
 };

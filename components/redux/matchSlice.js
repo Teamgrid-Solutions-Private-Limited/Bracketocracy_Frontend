@@ -9,7 +9,7 @@ export const fetchMatchs = createAsyncThunk(
       const response = await axios.get(
         `${API_MAIN}/match/match/view`
       );
-      console.log(response.data);
+      // console.log(response.data);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || 'Unknown error');

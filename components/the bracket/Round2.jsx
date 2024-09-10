@@ -5,7 +5,7 @@ import { fetchUserBets, placeBet, updateRound } from "../redux/betSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const Round2 = ({ matches, rounds, teams, getRemainingTime, userId }) => {
-  console.log(userId);
+  // console.log(userId);
 
   const [selectedTeams, setSelectedTeams] = useState({});
   const dispatch = useDispatch();
@@ -25,10 +25,10 @@ const Round2 = ({ matches, rounds, teams, getRemainingTime, userId }) => {
         );
 
         if (remainingTimeInMs <= 0) {
-          console.log(
-            "Bidding period is over. Can't select team",
-            remainingTimeInMs
-          );
+          // console.log(
+          //   "Bidding period is over. Can't select team",
+          //   remainingTimeInMs
+          // );
           return setDisabled(true);
         } else return setDisabled(false);
 
@@ -40,7 +40,7 @@ const Round2 = ({ matches, rounds, teams, getRemainingTime, userId }) => {
     // Find the selected team's ID based on the teamName
     const selectedTeam = teams.find((team) => team.name === teamName);
     if (!selectedTeam) {
-      console.log("Team not found.");
+      // console.log("Team not found.");
       return;
     }
 
@@ -50,9 +50,9 @@ const Round2 = ({ matches, rounds, teams, getRemainingTime, userId }) => {
       [matchId]: selectedTeam._id, // Store the ID instead of name
     }));
 
-    console.log(
-      `Selected team ${selectedTeam.name} (ID: ${selectedTeam._id}) for match ${matchId}`
-    );
+    // console.log(
+    //   `Selected team ${selectedTeam.name} (ID: ${selectedTeam._id}) for match ${matchId}`
+    // );
   };
 
   useEffect(() => {

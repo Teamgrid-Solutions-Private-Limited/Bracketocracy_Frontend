@@ -23,7 +23,7 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
         );
 
         if (remainingTimeInMs <= 0) {
-          console.log("Remaining time for bidding:", remainingTimeInMs);
+          // console.log("Remaining time for bidding:", remainingTimeInMs);
           return setDisabled(true);
         } else return setDisabled(false);
 
@@ -35,7 +35,7 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
     // Find the selected team's ID based on the teamName
     const selectedTeam = teams.find((team) => team.name === teamName);
     if (!selectedTeam) {
-      console.log("Team not found.");
+      // console.log("Team not found.");
       return;
     }
 
@@ -45,9 +45,9 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
       [matchId]: selectedTeam._id, // Store the ID instead of name
     }));
 
-    console.log(
-      `Selected team ${selectedTeam.name} (ID: ${selectedTeam._id}) for match ${matchId}`
-    );
+    // console.log(
+    //   `Selected team ${selectedTeam.name} (ID: ${selectedTeam._id}) for match ${matchId}`
+    // );
   };
 
   useEffect(() => {
@@ -194,12 +194,16 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                               )?.seed
                             }
                           </Text>
-                          <Text style={styles.teamName}>
+                          <Text style={val.teamOneScore > val.teamTwoScore
+                                ? styles.selectTeam
+                                : styles.teamName}>
                             {val.teamOne.name}
                           </Text>
                         </View>
                         <View style={styles.teamScoreContainer}>
-                          <Text style={styles.teamName}>
+                          <Text style={val.teamOneScore > val.teamTwoScore
+                                ? styles.selectTeam
+                                : styles.teamName}>
                             {val.teamOneScore}
                           </Text>
                           <Image
@@ -249,12 +253,16 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                               )?.seed
                             }
                           </Text>
-                          <Text style={styles.teamName}>
+                          <Text style={val.teamTwoScore > val.teamOneScore
+                                ? styles.selectTeam
+                                : styles.teamName}>
                             {val.teamTwo.name}
                           </Text>
                         </View>
                         <View style={styles.teamScoreContainer}>
-                          <Text style={styles.teamName}>
+                          <Text style={val.teamTwoScore > val.teamOneScore
+                                ? styles.selectTeam
+                                : styles.teamName}>
                             {val.teamTwoScore}
                           </Text>
                           <Image
