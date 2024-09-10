@@ -1,20 +1,24 @@
 import { StyleSheet } from "react-native";
 import { View, Text, TouchableOpacity } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
-const StatsItem = ({ label, value, isButton }) => (
-    <View style={styles.statsItem}>
+
+const StatsItem = ({ label, value, isButton }) => {
+    const navigation =useNavigation();
+    return(<View style={styles.statsItem}>
         <Text style={styles.statsText}>{label}</Text>
         {isButton ? (
-            <TouchableOpacity style={styles.selectionHistoryButton}>
+            <TouchableOpacity style={styles.selectionHistoryButton} onPress={() => { navigation.navigate("history")}}>
                 <Text style={styles.statsValue}>History</Text>
                 <FontAwesome name="angle-right" size={24} color="#ebb04b" />
             </TouchableOpacity>
         ) : (
             <Text style={styles.statsValue}>{value}</Text>
         )}
-    </View>
-);
+    </View>)
+    
+};
 
 export default StatsItem;
 

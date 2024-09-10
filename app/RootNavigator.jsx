@@ -15,6 +15,7 @@ import Splashscreen from '@/components/splash_screen/index';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Bracket from "@/components/the bracket/Index";
 import Message from "@/components/message/Message";
+import History from "@/components/my-leagues/subComponents/HistoryItem";
 const Stack = createNativeStackNavigator();
  
 const RootNavigator = () => {
@@ -54,6 +55,7 @@ const RootNavigator = () => {
 <Stack.Screen name='bracket' component={Bracket} />
 <Stack.Screen name ="message" component={Message} />
 <Stack.Screen name ="forget-password" component={ForgetPassword} />
+<Stack.Screen name ="history" component={History} />
 </Stack.Navigator>
 </NavigationContainer>
   );
