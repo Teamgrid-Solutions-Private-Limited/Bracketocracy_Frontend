@@ -16,7 +16,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+        "statusBar": {
+          "style": "light",
+          "backgroundColor": "#000000"
+      }
     },
     "android": {
       "adaptiveIcon": {
