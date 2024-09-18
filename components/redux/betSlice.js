@@ -28,7 +28,7 @@ export const placeBet = createAsyncThunk(
 
 export const fetchUserBets = createAsyncThunk(
   "bet/fetchUserBets",
-  async ({ userId }, thunkAPI) => {
+  async ( userId , thunkAPI) => {
     try {
       const response = await axios.get(
         `${API_MAIN}/bet/bet/user-bets/${userId}`

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
+  ImageBackground,
   StyleSheet,
   Text,
   TextInput,
@@ -8,11 +9,17 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createUsers } from "../redux/loginSlice";
 import Checkbox from "expo-checkbox";
 import { AntDesign } from "@expo/vector-icons";
-const SignIn = ({ navigation }) => {
+import { fetchAllUsers } from "../redux/leaguesSlice";
+const SignUp = ({ navigation }) => {
+  const { allUsers } = useSelector((state) => state.leagues)
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(fetchAllUsers())
+  }, [])
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -24,111 +31,163 @@ const SignIn = ({ navigation }) => {
 
   const [checkbox, setCheckbox] = useState(false);
   const [eye, setEye] = useState(true);
-  const dispatch = useDispatch();
+  const [userNameError, setUserNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const usernamePattern = /^(?=.*[a-zA-Z])(?=.*\d)[A-Za-z\d]+$/;
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const handleInputChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+    if (name === "userName") {
+      const userNameExists = allUsers.some(user => user.userName === value);
+      if (userNameExists) {
+        setUserNameError("Username already exists");
+      } else if (!usernamePattern.test(value)) {
+        setUserNameError("Username must contain both letters and numbers");
+      } else {
+        setUserNameError("");
+      }
+    }
 
+
+    if (name === "email") {
+      const emailExists = allUsers.some(user => user.email === value);
+      if (emailExists) {
+        setEmailError("Email already exists");
+      } else if (!emailPattern.test(value)) {
+        setEmailError("Please enter a valid email address");
+      } else {
+        setEmailError("");
+      }
+    }
+
+    if (name === "password") {
+      if (value.length < 6) {
+        setPasswordError("Password must be greater than 6 characters");
+      } else {
+        setPasswordError("");
+      }
+    }
+  };
   const handleSignUp = () => {
-    if(checkbox === false) {
-      alert('Please accept the terms and conditions')
-      return
+    if (checkbox === false) {
+      alert('Please accept the terms and conditions');
+      return;
+    }
+
+    if (userNameError || emailError || passwordError) {
+      alert('Please fix the errors before signing up');
+      return;
     }
     dispatch(createUsers(formData));
     navigation.navigate("sign-in");
   };
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={require("../../assets/images/bracketocracy-dark-logo.png")}
-        style={styles.logo}
-      />
-      <View style={styles.formContainer}>
-        <Text style={styles.header}>SIGN UP</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={formData.email}
-          onChangeText={(value) => handleInputChange("email", value)}
+    <ImageBackground
+      source={require("../../assets/images/bk-signup.jpg")}
+      style={styles.backgroundImage}
+    >
+      <View style={styles.container}>
+        <Image
+          source={require("../../assets/images/bracketocracy-dark-logo.png")}
+          style={styles.logo}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="User Name"
-          autoCapitalize="none"
-          value={formData.userName}
-          onChangeText={(value) => handleInputChange("userName", value)}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="First Name"
-          autoCapitalize="none"
-          value={formData.firstName}
-          onChangeText={(value) => handleInputChange("firstName", value)}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Last Name"
-          autoCapitalize="none"
-          value={formData.lastName}
-          onChangeText={(value) => handleInputChange("lastName", value)}
-        />
-        <View style={styles.passwordContainer}>
+        <View style={styles.formContainer}>
+          <Text style={styles.header}>SIGN UP</Text>
           <TextInput
             style={styles.input}
-            placeholder="Password"
-            secureTextEntry={eye}
+            placeholder="Email"
+            keyboardType="email-address"
             autoCapitalize="none"
-            value={formData.password}
-            onChangeText={(value) => handleInputChange("password", value)}
+            value={formData.email}
+            onChangeText={(value) => handleInputChange("email", value)}
           />
-          <TouchableOpacity style={styles.eyeIcon} onPress={() => setEye(!eye)}>
-            {eye ? (
-              <AntDesign name="eye" size={24} color="black" />
-            ) : (
-              <AntDesign name="eyeo" size={24} color="black" />
-            )}
+          {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+          <TextInput
+            style={styles.input}
+            placeholder="User Name"
+            autoCapitalize="none"
+            value={formData.userName}
+            onChangeText={(value) => handleInputChange("userName", value)}
+          />
+          {userNameError ? <Text style={styles.errorText}>{userNameError}</Text> : null}
+          <TextInput
+            style={styles.input}
+            placeholder="First Name"
+            autoCapitalize="none"
+            value={formData.firstName}
+            onChangeText={(value) => handleInputChange("firstName", value)}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Last Name"
+            autoCapitalize="none"
+            value={formData.lastName}
+            onChangeText={(value) => handleInputChange("lastName", value)}
+          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              secureTextEntry={eye}
+              autoCapitalize="none"
+              value={formData.password}
+              onChangeText={(value) => handleInputChange("password", value)}
+            />
+            {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
+            <TouchableOpacity style={styles.eyeIcon} onPress={() => setEye(!eye)}>
+              {eye ? (
+                <AntDesign name="eye" size={24} color="black" />
+              ) : (
+                <AntDesign name="eyeo" size={24} color="black" />
+              )}
+            </TouchableOpacity>
+          </View>
+          <View style={styles.rememberContainer}>
+            <Checkbox value={checkbox} onValueChange={setCheckbox} style={styles.checkboxContainer} />
+            <Text style={styles.rememberText}>I agree to the </Text>
+            <TouchableOpacity>
+              <Text style={styles.forgotPassword}>Terms & Conditions </Text>
+            </TouchableOpacity>
+            <Text style={styles.rememberText}>and </Text>
+            <TouchableOpacity>
+              <Text style={styles.forgotPassword}>Privacy Policy</Text>
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity style={styles.signInButton} onPress={handleSignUp}>
+            <Text style={styles.signInButtonText}>SIGN UP</Text>
           </TouchableOpacity>
+          <View style={styles.signUpContainer}>
+            <Text style={styles.noAccountText}>Already have an account?</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("sign-in")}>
+              <Text style={styles.signUpText}>Sign in</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={styles.rememberContainer}>
-          <Checkbox value={checkbox} onValueChange={setCheckbox} style={styles.checkboxContainer} />
-          <Text style={styles.rememberText}>I agree to the </Text>
-          <TouchableOpacity>
-            <Text style={styles.forgotPassword}>Terms & Conditions </Text>
-          </TouchableOpacity>
-          <Text style={styles.rememberText}>and </Text>
-          <TouchableOpacity>
-            <Text style={styles.forgotPassword}>Privacy Policy</Text>
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity style={styles.signInButton} onPress={handleSignUp}>
-          <Text style={styles.signInButtonText}>SIGN UP</Text>
-        </TouchableOpacity>
-        <View style={styles.signUpContainer}>
-          <Text style={styles.noAccountText}>Already have an account?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate("sign-in")}>
-            <Text style={styles.signUpText}>Sign in</Text>
-          </TouchableOpacity>
-        </View>
-
-
       </View>
-    </View>
+      <Text style={styles.madnessText}>LET MADNESS REIGN</Text>
+    </ImageBackground>
   );
 };
 
-export default SignIn;
+export default SignUp;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
     height: "auto",
-    backgroundColor: "#f2f1ed",
     paddingHorizontal: 25,
+  },
+  backgroundImage: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    resizeMode: 'cover',
   },
   logo: {
     width: "75%",
@@ -145,9 +204,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   header: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 12,
+    marginVertical: 10,
     textAlign: "left",
     color: "#333",
     paddingLeft: 5,
@@ -253,5 +312,17 @@ const styles = StyleSheet.create({
   img: {
     width: 20,
     height: 20,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginBottom: 10,
+  },
+  madnessText: {
+    textAlign: 'center',
+    color: '#ffffff',
+    fontSize: 20,
+    marginBottom: 160,
+    fontWeight: '500',
   },
 });

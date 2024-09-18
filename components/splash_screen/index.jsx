@@ -17,7 +17,7 @@ const Index = (props) => {
         }).start();
         Animated.timing(textScale, {
             toValue: 1,
-            duration: 1000,
+            duration: 1300,
             useNativeDriver: true,
         }).start();
     }, []);
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     madnessText: {
-        fontSize: 20,
+        fontSize: 22,
         color: "#D88D28",
         textAlign: "center",
         textTransform: "uppercase"

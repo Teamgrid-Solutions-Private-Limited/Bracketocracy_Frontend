@@ -25,7 +25,7 @@ const Index = () => {
     const [emails, setEmails] = useState('');
     const [inviteEmails, setInviteEmails] = useState('');
     const [allowInvitation, setAllowInvitation] = useState(false);
-
+    const [itemsToShow, setItemsToShow] = useState(10);
     const openModal = (action) => {
         if (action === "invite") {
             setInviteModalVisible(true);
@@ -88,6 +88,9 @@ const Index = () => {
     const handleDelete = (leagueId) => {
         dispatch(deleteLeagues(leagueId))
     };
+    const handleLoadMore = () => {
+        setItemsToShow(prev => prev + 10); 
+    };
     return (
         <View style={{ flex: 1 }}>
             <Header />
@@ -148,7 +151,7 @@ const Index = () => {
                         <Text style={styles.tableHeaderText}>Rank</Text>
                     </View>
                 </View>
-                {rankArr?.map((value, index) => (
+                {rankArr?.slice(0, itemsToShow).map((value, index) => (
                     <LeaderboardItem
                         key={index}
                         imageSource={profileImage}
@@ -157,6 +160,11 @@ const Index = () => {
                         rank={value.rank}
                     />
                 ))}
+                {rankArr && rankArr.length > itemsToShow && (
+                    <TouchableOpacity style={styles.loadMoreButton} onPress={handleLoadMore}>
+                        <Text style={styles.buttonText}>Tap to See More</Text>
+                    </TouchableOpacity>
+                )}
             </ScrollView>
             <Footer />
         </View>
@@ -239,6 +247,8 @@ const styles = StyleSheet.create({
     },
     myLeagues: {
         marginBottom: 12,
+        paddingHorizontal: 6,
+        paddingVertical: 3,
         width: "85%",
         borderRadius: 3,
         backgroundColor: "#fff",
@@ -294,5 +304,11 @@ const styles = StyleSheet.create({
         width: "85%",
         padding: 15,
         marginBottom: 10,
+    },
+    loadMoreButton: {
+        backgroundColor: "#ebb04b",
+        padding: 10,
+        borderRadius: 5,
+        marginVertical: 10,
     },
 });

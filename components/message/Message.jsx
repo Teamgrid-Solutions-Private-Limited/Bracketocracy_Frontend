@@ -11,7 +11,6 @@ import Header from "../header";
 import Footer from "../footer";
 import { fetchMultipleProfiles } from "../redux/leaguesSlice";
 
-// Component for showing message with sender's username
 const MessageItems = ({ items, profiles }) => {
   const profileData = useMemo(() => profiles.find((p) => p._id === items.userId[0]), [items?.userId, profiles]);
 

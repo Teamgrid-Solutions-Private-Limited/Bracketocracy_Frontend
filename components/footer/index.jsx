@@ -9,12 +9,13 @@ const Footer = () => {
   return (
     <View style={styles.footerContainer}>
       <Text style={styles.sponsorText}>This year's bracket is sponsored by</Text>
-      <TouchableOpacity onPress={handlePress}>
+      {/* <TouchableOpacity onPress={handlePress}> */}
         <Image
           source={require('../../assets/images/digitalacademy.png')}
           style={styles.sponsorImage}
+          
         />
-      </TouchableOpacity>
+      {/* </TouchableOpacity> */}
     </View>
   );
 }
@@ -23,23 +24,22 @@ export default Footer;
 
 const styles = StyleSheet.create({
   footerContainer: {
-    alignItems: 'center',
-    // marginTop: 20,
     backgroundColor: '#fff',
     width: '100%',
-    height: '10%',
+    height: '9%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 5,
   },
   sponsorText: {
-    fontSize: 15,
+    fontSize: 14,
     textAlign: 'center',
-    zIndex: 15,
-    marginTop: 5,
   },
   sponsorImage: {
     width: 200,
-    height: 100,
+    height: 40,
     resizeMode: 'contain',
-    marginTop: -25,
-    zIndex: 10,
   },
 });

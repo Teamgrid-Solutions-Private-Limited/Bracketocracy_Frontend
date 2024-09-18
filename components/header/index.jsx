@@ -33,22 +33,23 @@ const Header = (props) => {
   }, [dispatch]);
   return (
     <View style={styles.headerContainer}>
-      <View style={styles.topRow}>
+      <View style={[styles.topRow, isHomeScreen ? styles.topRowHome : styles.topRow]}>
         <View style={styles.titleContainer}>
           <Image
             source={require("../../assets/images/bracketocracy-mob-logo-light.png")}
             style={styles.logo}
           />
         </View>
-        <View style={styles.rightContainer}>
-          <Text style={styles.subtitle}>{editProfile ? editProfile.firstName + " " + editProfile.lastName : profileData?.firstName + " " + profileData?.lastName}</Text>
-          <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('edit-profile')}>
-            <Image
-              source={require("../../assets/images/user.png")}
-              style={styles.profileImage}
-            />
-          </TouchableOpacity>
-        </View>
+        {!isHomeScreen && (
+          <View style={styles.rightContainer}>
+            <Text style={styles.subtitle}>{editProfile ? editProfile.firstName + " " + editProfile.lastName : profileData?.firstName + " " + profileData?.lastName}</Text>
+            <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('edit-profile')}>
+              <Image
+                source={require("../../assets/images/user.png")}
+                style={styles.profileImage}
+              />
+            </TouchableOpacity>
+          </View>)}
       </View>
 
       {!isHomeScreen && (
@@ -86,7 +87,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "95%",
     height: 60,
-
+  },
+  topRowHome: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "95%",
+    height: 60,
   },
   rightContainer: {
     display: "flex",
@@ -131,7 +138,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: -15,
+    marginBottom: -20,
     backgroundColor: "#d38f14",
     width: "70%",
     borderRadius: 17,

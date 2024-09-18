@@ -44,7 +44,7 @@ const LeagueItem = ({ isExpanded, onClick, onEdit, league, openModal, handleDele
                 <Text style={styles.leagueName} onPress={() => handleLeagueTitleClick(league)}>{league.title}</Text>
                 {league.userId[0] === userMain && <FontAwesome6 name="edit" size={20} color="red" onPress={() => onEdit(league)} />}
             </View>
-            <AntDesign name={isExpanded ? "upcircle" : "downcircle"} size={22} onPress={onClick} color="#ebb04b" />
+            <AntDesign name={isExpanded ? "upcircle" : "downcircle"} size={20} onPress={onClick} color="#ebb04b" />
         </View>
         {isExpanded && (<>
             <View style={styles.memberContainer}>

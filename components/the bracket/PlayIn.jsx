@@ -8,11 +8,7 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
   const [selectedTeams, setSelectedTeams] = useState({});
   const [disabled, setDisabled] = useState(false);
   const dispatch = useDispatch();
-  const userBets = useSelector((state) =>
-    state.bet.userBets && state.bet.userBets.length > 0
-      ? state.bet.userBets
-      : []
-  );
+  const {userBets} = useSelector((state) =>state.bet);
 
   const handleTeamSelect = (matchId, teamName) => {
     // Check if bidding period is over for the specific match
@@ -52,7 +48,7 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
 
   useEffect(() => {
     if (userId) {
-      dispatch(fetchUserBets({ userId }));
+      dispatch(fetchUserBets( userId ));
     }
   }, [dispatch, userId]);
 
