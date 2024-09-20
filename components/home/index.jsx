@@ -16,10 +16,10 @@ const IconBox = ({ title, IconComponent, iconName, iconSize, notificationsCount,
         <View style={styles.circle}>
             {onPress ? (
                 <TouchableOpacity onPress={onPress}>
-                    <IconComponent name={iconName} size={iconSize} color="black" />
+                    <IconComponent name={iconName} size={iconSize} color="#333333" />
                 </TouchableOpacity>
             ) : (
-                <IconComponent name={iconName} size={iconSize} color="black" />
+                <IconComponent name={iconName} size={iconSize} color="#333333" />
             )}
             {notificationsCount > 0 && (
                 <View style={styles.badge}>
@@ -31,8 +31,7 @@ const IconBox = ({ title, IconComponent, iconName, iconSize, notificationsCount,
 );
 
 const Home = (props) => {
-    const dispatch = useDispatch();
-    const { editProfile } = useSelector((state) => state.editProfile);
+   
     const handleNavigateToMenu = () => {
         props.navigation.navigate("menu");
     };
@@ -46,37 +45,24 @@ const Home = (props) => {
     };
     
     const notificationsCount = 3;
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const storedUserId = await AsyncStorage.getItem('userId');
-                if (storedUserId) {
-                    dispatch(fetchEditProfile(storedUserId));
-                }
-            } catch (error) {
-                console.error('Failed to fetch user ID:', error);
-            }
-        };
 
-        fetchUserData();
-    }, [dispatch]);
     return (
         <View style={styles.main}>
-            <Header editProfile={editProfile}/>
+            <Header />
             <View style={styles.content}>
                 <View style={styles.contentBox}>
                     <IconBox
                         title="RANK"
                         IconComponent={FontAwesome5}
                         iconName="users"
-                        iconSize={35}
+                        iconSize={30}
                         onPress={handleNavigateToLeagues} 
                     />
                     <IconBox
                         title="NOTIFICATIONS"
                         IconComponent={Ionicons}
                         iconName="notifications"
-                        iconSize={35}
+                        iconSize={30}
                         notificationsCount={notificationsCount}
                     />
                 </View>
@@ -93,14 +79,14 @@ const Home = (props) => {
                         title="PICKS"
                         IconComponent={AntDesign}
                         iconName="checkcircle"
-                        iconSize={35}
+                        iconSize={30}
                         onPress={handleNavigateToBracket}
                     />
                     <IconBox
                         title="MAIN MENU"
                         IconComponent={Ionicons}
                         iconName="menu"
-                        iconSize={40}
+                        iconSize={35}
                         onPress={handleNavigateToMenu} 
                     />
                 </View>
@@ -121,7 +107,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         flex: 1,
         justifyContent: 'space-between',
-        padding: 20
+        padding: 25
     },
     contentBox: {
         flexDirection: "row",
@@ -142,7 +128,7 @@ const styles = StyleSheet.create({
         height: 204,
         width: 204,
         borderRadius: 102,
-        borderWidth: 3,
+        borderWidth: 4,
         justifyContent: "center",
         alignItems: "center",
         borderColor: "#CE9D3E",
@@ -172,7 +158,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: '#ebb04b',
         borderRadius: 30,
-        borderWidth: 3,
+        borderWidth: 4,
         borderColor: "#CE9D3E",
         position: 'relative'
     },

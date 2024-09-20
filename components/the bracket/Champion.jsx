@@ -5,7 +5,7 @@ import moment from "moment";
 const Champion = ({ matches, rounds, getRemainingTime }) => {
   if (matches.length > 0) {
     const championMatchRound = matches.find(
-      (matches) => matches?.round?.slug === "champion-match"
+      (matches) => matches?.round?.slug === "round-6"
     );
 
     if (!championMatchRound) return null;
@@ -14,21 +14,23 @@ const Champion = ({ matches, rounds, getRemainingTime }) => {
       <View style={styles.container}>
         <Text style={styles.title}>FINAL (CHAMPIONSHIP GAME)</Text>
         {rounds.map((round) => {
-          if (round.slug == "champion-match") {
+          if (round.slug === "round-6") {
             return (
               <View key={round._id}>
                 <Text style={styles.date}>
-                  {moment(
-                    round.playDate,
-                    "ddd MMM DD YYYY HH:mm:ss [GMT]Z"
-                  ).format("DD MMMM YYYY")}
+                  {moment(round.playDate).format("DD MMMM YYYY")}
                 </Text>
                 <Text style={styles.selectionPeriod}>
-                  {round.biddingEndDate &&
-                  getRemainingTime(round.biddingEndDate)
-                    ? `SELECTION ENDS IN (${getRemainingTime(
-                        round.biddingEndDate
-                      )})`
+                  {round.biddingEndDate
+                    ? // Extract formattedTime from the result of getRemainingTime
+                      (() => {
+                        const { formattedTime } = getRemainingTime(
+                          round.biddingEndDate
+                        );
+                        return formattedTime
+                          ? `SELECTION ENDS IN (${formattedTime})`
+                          : "SELECTION PERIOD ENDED";
+                      })()
                     : "SELECTION PERIOD ENDED"}
                 </Text>
               </View>

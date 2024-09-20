@@ -15,6 +15,7 @@ import Splashscreen from '@/components/splash_screen/index';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Bracket from "@/components/the bracket/Index";
 import Message from "@/components/message/Message";
+import History from "@/components/my-leagues/subComponents/HistoryItem";
 const Stack = createNativeStackNavigator();
 
 const RootNavigator = () => {
@@ -25,9 +26,9 @@ const RootNavigator = () => {
     const checkUserToken = async () => {
       const token = await AsyncStorage.getItem('userToken');
       if (token || userToken) {
-        setInitialRoute('splash-screen'); 
+        setInitialRoute('splash-screen');
       } else {
-        setInitialRoute('sign-in'); 
+        setInitialRoute('sign-in');
       }
     };
 
@@ -41,7 +42,6 @@ const RootNavigator = () => {
 
   return (
     <NavigationContainer>
-     
       <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRoute}>
 
         <Stack.Screen name="splash-screen" component={Splashscreen} />
@@ -53,8 +53,9 @@ const RootNavigator = () => {
         <Stack.Screen name="edit-profile" component={Edit} />
         <Stack.Screen name="my-leagues" component={MyLeagues} />
         <Stack.Screen name='bracket' component={Bracket} />
-        <Stack.Screen name ="message" component={Message} />
-        <Stack.Screen name ="forget-password" component={ForgetPassword} />
+        <Stack.Screen name="message" component={Message} />
+        <Stack.Screen name="forget-password" component={ForgetPassword} />
+        <Stack.Screen name="history" component={History} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -23,7 +23,7 @@ export const fetchMultipleProfiles = createAsyncThunk(
           })
         )
       );
-      return responses.map(response => response.data);  // Return serializable data
+      return responses.map(response => response.data); 
     } catch (error) {
       return rejectWithValue(error.response?.data || 'An error occurred');
     }
@@ -87,7 +87,7 @@ export const createUpdateLeagues = createAsyncThunk(
           formData,
           { headers: { 'Content-Type': 'application/json' } }
         );
-        return response.data;  // Return serializable data
+        return response.data;  
       } else if (action === "create") {
         const response = await axios.post(
           `${API_MAIN}/league/league/create`,
@@ -110,7 +110,7 @@ export const deleteLeagues = createAsyncThunk(
       await axios.delete(`${API_MAIN}/league/league/delete/${leagueId}`, {
         headers: { 'Content-Type': 'application/json' }
       });
-      return leagueId;  // Return serializable ID of deleted league
+      return leagueId;  
     } catch (error) {
       return rejectWithValue(error.response?.data || 'An error occurred');
     }
@@ -126,7 +126,7 @@ export const deleteLeaguesUser = createAsyncThunk(
         data: { leagueId, userId },
         headers: { 'Content-Type': 'application/json' }
       });
-      return response.data;  // Return serializable data
+      return response.data; 
     } catch (error) {
       return rejectWithValue(error.response?.data || 'An error occurred');
     }
@@ -197,6 +197,15 @@ const Leagueslice = createSlice({
         state.leagues = state.leagues.filter((league) => league._id !== action.payload);
       })
       .addCase(deleteLeagues.rejected, (state, action) => {
+        state.status = 'error';
+        state.error = action.payload;
+      })
+      .addCase(deleteLeaguesUser.fulfilled, (state, action) => {
+        state.status = 'idle';
+        const updatedLeague = action.payload.league;
+        state.leagues = state.leagues.filter((league) => league._id !== updatedLeague._id);
+      })
+      .addCase(deleteLeaguesUser.rejected, (state, action) => {
         state.status = 'error';
         state.error = action.payload;
       });

@@ -1,14 +1,15 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { API_MAIN } from "./API";
 
 export const fetchMatchs = createAsyncThunk(
   "match/fetchAll",
   async (_, thunkAPI) => {
     try {
       const response = await axios.get(
-        "http://192.168.1.26:6010/match/match/view"
+        `${API_MAIN}/match/match/view`
       );
-      
+      // console.log(response.data);
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || 'Unknown error');

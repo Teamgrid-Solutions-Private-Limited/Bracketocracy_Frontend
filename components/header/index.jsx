@@ -14,7 +14,7 @@ const Header = (props) => {
   const isEditProfile = route.name === 'edit-profile';
   const dispatch = useDispatch();
   const { editProfile } = useSelector((state) => state.editProfile);
-  
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -33,22 +33,23 @@ const Header = (props) => {
   }, [dispatch]);
   return (
     <View style={styles.headerContainer}>
-      <View style={styles.topRow}>
+      <View style={[styles.topRow, isHomeScreen ? styles.topRowHome : styles.topRow]}>
         <View style={styles.titleContainer}>
           <Image
             source={require("../../assets/images/bracketocracy-mob-logo-light.png")}
             style={styles.logo}
           />
         </View>
-        <View style={styles.rightContainer}>
-          <Text style={styles.subtitle}>{editProfile ? editProfile.firstName + " " + editProfile.lastName : profileData?.firstName + " " +  profileData?.lastName}</Text>
-          <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('edit-profile')}>
-            <Image
-              source={require("../../assets/images/user.png")}
-              style={styles.profileImage}
-            />
-          </TouchableOpacity>
-        </View>
+        {!isHomeScreen && (
+          <View style={styles.rightContainer}>
+            <Text style={styles.subtitle}>{editProfile ? editProfile.firstName + " " + editProfile.lastName : profileData?.firstName + " " + profileData?.lastName}</Text>
+            <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('edit-profile')}>
+              <Image
+                source={require("../../assets/images/userIcon.png")}
+                style={styles.profileImage}
+              />
+            </TouchableOpacity>
+          </View>)}
       </View>
 
       {!isHomeScreen && (
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 3,
     borderBottomWidth: 3,
-    
+
   },
   topRow: {
     flexDirection: "row",
@@ -86,7 +87,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "95%",
     height: 60,
-    
+  },
+  topRowHome: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    width: "95%",
+    height: 60,
   },
   rightContainer: {
     display: "flex",
@@ -106,10 +113,10 @@ const styles = StyleSheet.create({
   subtitle: {
     display: "flex",
     fontSize: 12,
-    flexWrap:"nowrap",
+    flexWrap: "nowrap",
     color: "#fff",
     textTransform: "uppercase",
-   
+
   },
   profileButton: {
     display: "flex",
@@ -131,14 +138,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom:-15,
+    marginBottom: -20,
     backgroundColor: "#d38f14",
     width: "70%",
-    borderRadius: 15,
+    borderRadius: 17,
     borderWidth: 3,
     borderColor: "#CE9D3E",
-    paddingVertical: 1,
-   gap: 5
+    paddingVertical: 6,
+    gap: 5
   },
   menuButton: {
     marginRight: 10,
@@ -149,10 +156,10 @@ const styles = StyleSheet.create({
     height: 20,
   },
   menuText: {
-    fontSize: 16,
+    fontSize: 18,
     // fontWeight: "bold",
     color: "#fff",
-   
+
     fontFamily: "nova",
   },
 });

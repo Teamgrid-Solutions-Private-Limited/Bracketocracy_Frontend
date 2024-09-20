@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, SafeAreaView, StyleSheet, StatusBar, ActivityIndicator } from 'react-native';
+import { Text, View, SafeAreaView, StyleSheet, ActivityIndicator, StatusBar } from 'react-native';
 import RootNavigator from './RootNavigator';
 import * as Font from 'expo-font';
 import { store } from '../components/redux/store';
@@ -17,6 +17,7 @@ export default function Index() {
     };
 
     loadFonts();
+
   }, []);
 
   if (!fontsLoaded) {
@@ -28,10 +29,17 @@ export default function Index() {
   }
 
   return (
-    <Provider store={store}>
-      <StatusBar barStyle="light-content"  backgroundColor="#000000"/>
-      <RootNavigator/>
-    </Provider>
+    <SafeAreaView style={styles.container}>
+        <StatusBar
+          barStyle="light-content"
+          hidden={false}
+          backgroundColor='black'
+          translucent={false}
+        />
+      <Provider store={store} >
+        <RootNavigator />
+      </Provider>
+    </SafeAreaView>
   );
 }
 

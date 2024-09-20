@@ -16,13 +16,13 @@ const InputField = ({ placeholder, value, onChangeText }) => (
         onChangeText={onChangeText}
     />
 );
-
+ 
 const ActionButton = ({ title, onPress, style }) => (
     <TouchableOpacity style={[styles.actionButton, style]} onPress={onPress}>
         <Text style={styles.buttonText}>{title}</Text>
     </TouchableOpacity>
 );
-
+ 
 const Index = () => {
     const navigation = useNavigation()
     const [userId, setUserId] = useState('');
@@ -33,7 +33,7 @@ const Index = () => {
     const [profilePhoto, setprofilePhoto] = useState(null);
     const dispatch = useDispatch();
     const { editProfile, status } = useSelector((state) => state.editProfile);
-
+ 
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -46,7 +46,7 @@ const Index = () => {
                 console.error('Failed to fetch user ID:', error);
             }
         };
-
+ 
         fetchUserData();
     }, [dispatch]);
     const handleDelete = () => {
@@ -78,17 +78,18 @@ const Index = () => {
             { cancelable: false }
         );
     };
-
+ 
     useEffect(() => {
         if (editProfile) {
             setUserName(editProfile.userName||'');
             setFirstName(editProfile.firstName||'');
             setLastName(editProfile.lastName||'');
             setEmail(editProfile.email||'');
+            // setprofilePhoto(editProfile.profilePhoto||null);
         }
     }, [editProfile]);
-
-
+ 
+ 
     const chooseImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status === 'granted') {
@@ -117,16 +118,16 @@ const Index = () => {
             );
         }
     };
-
+ 
     const openCamera = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status === 'granted') {
             let result = await ImagePicker.launchCameraAsync({
                 allowsEditing: true,
                 aspect: [4, 3],
-                quality: 1,
+                quality: 0.5,
             });
-
+ 
             if (!result.canceled) {
                 setprofilePhoto(result.assets[0].uri);
             }
@@ -137,29 +138,37 @@ const Index = () => {
             );
         }
     };
-
+ 
     const openImagePicker = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [4, 3],
-            quality: 1,
+            quality: 0.5,
         });
-
+ 
         if (!result.canceled) {
             setprofilePhoto(result.assets[0].uri);
         }
     };
     const handleUpdate = async () => {
-        const userData = {
+        let userData = {
             id: userId,
             userName,
             firstName,
             lastName,
             email,
-            profilePhoto: profilePhoto ? { uri: profilePhoto, name: 'profilePhoto.jpg', type: 'image/jpeg' } : null
         };
-
+   
+        // Ensure profilePhoto is available and contains all necessary data
+        if (profilePhoto && profilePhoto.uri) {
+            userData.profilePhoto = {
+                uri: profilePhoto.uri,
+                name: profilePhoto.fileName || profilePhoto.uri.split('/').pop(),  // Fallback if fileName is not available
+                type: profilePhoto.mimeType || `image/${profilePhoto.uri.split('.').pop()}`,
+            };
+        }
+   
         dispatch(updateEditProfile(userData))
             .unwrap()
             .then(() => {
@@ -170,14 +179,18 @@ const Index = () => {
                 Alert.alert("Failed to update profile", error.message);
             });
     };
-
-
-
-
+   
+    // UseEffect to ensure profilePhoto is fully set before triggering the update
+   
+   
+ 
+ 
+ 
+ 
     if (status === "loading") return <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
     </View>;
-
+ 
     return (
         <View style={styles.container}>
             <Header editProfile={editProfile} />
@@ -214,9 +227,9 @@ const Index = () => {
         </View>
     );
 };
-
+ 
 export default Index;
-
+ 
 const styles = StyleSheet.create({
     container: {
        

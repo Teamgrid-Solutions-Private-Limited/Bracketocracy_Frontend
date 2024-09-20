@@ -1,13 +1,25 @@
 import { StyleSheet, Text, View, Modal, TextInput, TouchableOpacity } from 'react-native'
-import React from 'react'
-import { useDispatch } from 'react-redux';
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
 import { createinviteFriendLeagues } from '../redux/invitationSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLeagues } from '../redux/leaguesSlice';
 
 const InviteFriendModal = ({ visible, onClose, emails, setEmails, league }) => {
     const dispatch = useDispatch();
+    useEffect(() => {
+        const userId = AsyncStorage.getItem('userId');
+        dispatch(getLeagues(userId));
+    },[])
+    const {leagues}=useSelector(state=>state.leagues)
+   
     const handleSubmit = async () => {
+        const filteredLeagues =leagues.filter((item)=>item._id===league)
+        const filtertedEmail=filteredLeagues.filter((item)=>item.emails.map(email=>email).includes(emails))
+        if(filtertedEmail.length>0){
+            alert('Email already exist in league, Try different email')
+            return
+        }
         const userId = await AsyncStorage.getItem('userId');
         dispatch(createinviteFriendLeagues({ league, emails })).unwrap().then(() => { dispatch(getLeagues(userId)) });
         onClose();

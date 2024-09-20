@@ -1,9 +1,8 @@
-import {  StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import React from "react";
-import Tabs from "./Tabs";
 import Header from "../header";
-import Footer from "../footer"
-
+import Tabs from "./Tabs";
+import Footer from "../footer";
 
 const Index = () => {
   return (

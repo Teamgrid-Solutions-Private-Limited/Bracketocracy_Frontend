@@ -25,11 +25,12 @@ export const createUsers = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      if (error.response && error.response.data) {
-        return rejectWithValue(error.response.data);
-      } else {
-        return rejectWithValue('Something went wrong');
-      }
+      // if (error.response && error.response.data) {
+      //   return rejectWithValue(error.response.data);
+      // } else {
+      //   return rejectWithValue('Something went wrong');
+      // }
+     alert(error.response.data.message);
     }
   }
 );

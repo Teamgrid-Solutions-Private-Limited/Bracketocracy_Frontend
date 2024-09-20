@@ -1,13 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { API_MAIN } from './API';
-
+ 
 const initialState = {
   editProfile: [],
   status: 'idle',
   error: null,
 };
-
+ 
 // fetchEditProfile: fetch the user profile by ID
 export const fetchEditProfile = createAsyncThunk(
   'fetchEditProfile',
@@ -22,7 +22,7 @@ export const fetchEditProfile = createAsyncThunk(
     }
   }
 );
-
+ 
 // updateEditProfile: update the user profile
 export const updateEditProfile = createAsyncThunk(
   'updateEditProfile',
@@ -33,21 +33,22 @@ export const updateEditProfile = createAsyncThunk(
       formData.append('firstName', userData.firstName);
       formData.append('lastName', userData.lastName);
       formData.append('email', userData.email);
-      formData.append('profilePhoto', userData.profilePhoto);
-
+      // if(userData.profilePhoto) {
+        formData.append('profilePhoto', userData.profilePhoto);
+      // }
       const response = await axios.put(`${API_MAIN}/user/user/update/${userData.id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-
+ 
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || 'An error occurred while updating profile');
     }
   }
 );
-
+ 
 // deleteProfile: delete the user profile by ID
 export const deleteProfile = createAsyncThunk(
   'deleteProfile',
@@ -62,7 +63,7 @@ export const deleteProfile = createAsyncThunk(
     }
   }
 );
-
+ 
 const EditProfileSlice = createSlice({
   name: 'EditProfile',
   initialState,
@@ -81,7 +82,7 @@ const EditProfileSlice = createSlice({
         state.status = 'error';
         state.error = action.payload;
       })
-
+ 
       .addCase(updateEditProfile.pending, (state) => {
         state.status = 'loading';
       })
@@ -94,7 +95,7 @@ const EditProfileSlice = createSlice({
         state.status = 'error';
         state.error = action.payload;
       })
-
+ 
       .addCase(deleteProfile.pending, (state) => {
         state.status = 'loading';
       })
@@ -109,5 +110,5 @@ const EditProfileSlice = createSlice({
       });
   },
 });
-
+ 
 export default EditProfileSlice.reducer;

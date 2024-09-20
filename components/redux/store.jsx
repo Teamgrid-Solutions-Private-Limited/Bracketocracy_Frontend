@@ -8,6 +8,8 @@ import teamReducer from "./teamSlice";
 import betSlice from "./betSlice";
 import InviteFriendLeagueReducer from "./invitationSlice";
 import MessageReducer from "./messageSlice"
+import countDownSlice from './countDownSlice';
+import sponsorSlice from "./sponsorSlice"
 export const store = configureStore({
   reducer: {
     editProfile:EditProfileReducer,
@@ -18,7 +20,9 @@ export const store = configureStore({
     round: roundReducer,
     team: teamReducer,
     bet:betSlice,
-    message:MessageReducer
+    message:MessageReducer,
+    count:countDownSlice,
+    sponsor:sponsorSlice
   },
   // middleware: (getDefaultMiddleware) =>
   //   getDefaultMiddleware({

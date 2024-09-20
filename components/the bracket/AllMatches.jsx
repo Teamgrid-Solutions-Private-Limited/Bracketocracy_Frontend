@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { getRounds } from "../redux/roundSlice";
@@ -13,11 +13,26 @@ import Round1 from "./Round1";
 import PlayIn from "./PlayIn";
 import moment from "moment";
 import ChampionMatch from "./ChampionMatch";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+// import CountdownTimer from "./CountdownTimer";
 
 const AllMatches = ({ matches, allMatches }) => {
   const dispatch = useDispatch();
+  const [id, setId] = useState(null);
 
-  // console.log(allMatches);
+  useEffect(()=>{
+    const getId = async () => {
+      try {
+        const userId = await AsyncStorage.getItem("userId");
+        setId(userId);
+        
+      } catch (error) {
+        console.error("Error retrieving token:", error);
+      }
+    };
+    getId();
+  },[id])
+  console.log("userId", id);
 
   useEffect(() => {
     dispatch(getRounds());
@@ -27,24 +42,36 @@ const AllMatches = ({ matches, allMatches }) => {
   const rounds = useSelector((state) =>
     state.round.roundlist ? state?.round?.roundlist : []
   );
-  console.log("rounds", rounds);
+  // console.log("rounds", rounds);
 
   const teams = useSelector((state) =>
     state.team.teams ? state.team.teams : []
   );
-  console.log("teams", teams);
+  // console.log("teams", teams);
 
-  const getRemainingTime = (endDate) => {
-    const now = moment();
-    const end = moment(endDate);
-    const duration = moment.duration(end.diff(now));
+  const getRemainingTime = (biddingEndDate) => {
+    const now = new Date();
+    const endDate = new Date(biddingEndDate);
 
-    const days = Math.floor(duration.asDays());
-    const hours = duration.hours();
-    const minutes = duration.minutes();
-    if (duration.asMilliseconds() > 0) {
-      return `${days} DAYS, ${hours} HRS, ${minutes} MINS`;
-    } else return null;
+    // Calculate the remaining time in milliseconds
+    const remainingTimeInMs = endDate - now;
+
+    if (remainingTimeInMs <= 0) {
+      return { formattedTime: null, remainingTimeInMs }; // Bidding period is over
+    }
+
+    // Calculate days, hours, and minutes
+    const days = Math.floor(remainingTimeInMs / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(
+      (remainingTimeInMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutes = Math.floor(
+      (remainingTimeInMs % (1000 * 60 * 60)) / (1000 * 60)
+    );
+
+    const formattedTime = `${days} days ${hours} hours ${minutes} minutes`;
+
+    return { formattedTime, remainingTimeInMs };
   };
 
   return (
@@ -54,42 +81,54 @@ const AllMatches = ({ matches, allMatches }) => {
         rounds={rounds}
         getRemainingTime={getRemainingTime}
       />
-      <ChampionMatch matches={allMatches} rounds={rounds} teams={teams} getRemainingTime={getRemainingTime} />
+      <ChampionMatch
+        matches={allMatches}
+        rounds={rounds}
+        teams={teams}
+        getRemainingTime={getRemainingTime}
+        userId={id}
+      />
       <FinalMatchs
         matches={allMatches}
         rounds={rounds}
         teams={teams}
         getRemainingTime={getRemainingTime}
+        userId={id}
       />
       <Elite
         matches={matches}
         rounds={rounds}
         teams={teams}
         getRemainingTime={getRemainingTime}
+        userId={id}
       />
       <Sweet
         matches={matches}
         rounds={rounds}
         teams={teams}
         getRemainingTime={getRemainingTime}
+        userId={id}
       />
       <Round2
         matches={matches}
         rounds={rounds}
         teams={teams}
         getRemainingTime={getRemainingTime}
+        userId={id}
       />
       <Round1
         matches={matches}
         rounds={rounds}
         teams={teams}
         getRemainingTime={getRemainingTime}
+        userId={id}
       />
       <PlayIn
         matches={matches}
         rounds={rounds}
         teams={teams}
         getRemainingTime={getRemainingTime}
+        userId={id}
       />
     </ScrollView>
   );

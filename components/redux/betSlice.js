@@ -1,20 +1,24 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { API_MAIN } from "./API";
 
 export const placeBet = createAsyncThunk(
   "bet/placeBet",
-  async ({ matchId, userId, selectedWinner, status, seasonId }, thunkAPI) => {
+  async ({ matchId, userId, selectedWinner, status, seasonId, betScore }, thunkAPI) => {
     try {
       const response = await axios.post(
-        "http://192.168.1.26:6010/bet/bet/placebet",
+        `${API_MAIN}/bet/bet/placebet`,
         {
           matchId,
           userId,
           selectedWinner,
           status,
           seasonId,
+          betScore
         }
       );
+      console.log(response.data);
+      
       return response.data;
     } catch (error) {
       console.error("Error response:", error.response?.data);
@@ -30,7 +34,7 @@ export const fetchUserBets = createAsyncThunk(
   async ({ userId }, thunkAPI) => {
     try {
       const response = await axios.get(
-        `http://192.168.1.26:6010/bet/bet/user-bets/${userId}`
+        `${API_MAIN}/bet/bet/user-bets/${userId}`
       );
       return response.data;
     } catch (error) {
@@ -45,13 +49,13 @@ export const fetchUserBets = createAsyncThunk(
 export const updateRound = createAsyncThunk(
   "bet/updateRound",
   async (
-    { id, matchId, userId, selectedWinner, status, seasonId },
+    { id, matchId, userId, selectedWinner, status, seasonId, betScore },
     thunkAPI
   ) => {
     try {
       const response = await axios.put(
-        `http://192.168.1.26:6010/bet/round/update/${id}`,
-        { matchId, userId, selectedWinner, status, seasonId }
+        `${API_MAIN}/bet/bet/update/${id}`,
+        { matchId, userId, selectedWinner, status, seasonId, betScore }
       );
       return response.data;
     } catch (error) {
@@ -79,6 +83,8 @@ const betSlice = createSlice({
         state.error = null;
       })
       .addCase(placeBet.fulfilled, (state, action) => {
+        console.log(action.payload);
+        
         state.loading = false;
         state.userBets = action.payload; // Assuming new bets are appended
       })
@@ -120,7 +126,7 @@ const betSlice = createSlice({
           // Optional: Add the updated bet if it does not exist
           state.userBets=action.payload;
         }
-        console.log("Update successful, payload:", action.payload);
+        // console.log("Update successful, payload:", action.payload);
       })
 
       .addCase(updateRound.rejected, (state, action) => {

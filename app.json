@@ -22,7 +22,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.gourab_teamgrid.Bracketocracy"
     },
     "web": {
       "bundler": "metro",
@@ -35,6 +36,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "1b4939ea-f390-4aae-93b2-bad2cb350c50"
+      }
     }
   }
 }
