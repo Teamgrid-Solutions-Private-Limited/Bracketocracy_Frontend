@@ -45,7 +45,7 @@ const Header = (props) => {
             <Text style={styles.subtitle}>{editProfile ? editProfile.firstName + " " + editProfile.lastName : profileData?.firstName + " " + profileData?.lastName}</Text>
             <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('edit-profile')}>
               <Image
-                source={require("../../assets/images/user.png")}
+                source={require("../../assets/images/userIcon.png")}
                 style={styles.profileImage}
               />
             </TouchableOpacity>

@@ -19,10 +19,10 @@ const Tabs = () => {
   // console.log(matches, "matches");
 
   const filteredMatches = matches.filter((val) => {
-    if (activeTab === 1) return val.zone.slug === "WEST";
-    if (activeTab === 2) return val.zone.slug === "SOUTH";
-    if (activeTab === 3) return val.zone.slug === "EAST";
-    if (activeTab === 4) return val.zone.slug === "MIDWEST";
+    if (activeTab === 1) return val.zone?.slug === "WEST";
+    if (activeTab === 2) return val.zone?.slug === "SOUTH";
+    if (activeTab === 3) return val.zone?.slug === "EAST";
+    if (activeTab === 4) return val.zone?.slug === "MIDWEST";
     return true;
   });
 

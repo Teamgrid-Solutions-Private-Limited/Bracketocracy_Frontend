@@ -1,5 +1,6 @@
 
 import {
+  Dimensions,
   Image,
   ImageBackground,
   KeyboardAvoidingView,
@@ -13,15 +14,19 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../redux/loginSlice";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Checkbox from "expo-checkbox";
 import { API_MAIN } from "../redux/API";
-
+import { fetchAllUsers } from "../redux/leaguesSlice";
+const height=Dimensions.get('window').height
 const SignIn = ({ navigation }) => {
   const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(fetchAllUsers())
+  },[])
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [checkbox, setCheckbox] = useState(false);
@@ -30,6 +35,7 @@ const SignIn = ({ navigation }) => {
   const [passwordError, setPasswordError] = useState("");
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const {allUsers}=useSelector((state)=>state.leagues)
 
   const handleEmailChange = (text) => {
     setEmail(text);
@@ -55,11 +61,23 @@ const SignIn = ({ navigation }) => {
     if (!password) {
       setPasswordError("Password is required");
     }
-    
+  
     if (!email || !password || emailError || passwordError) {
       alert('Please fix the errors before signing in');
       return;
     }
+  
+    const user = allUsers.find((u) => u.email === email);
+    if (user) {
+      if (user.active === "no") {
+        alert("Your account is inactive. Please contact support.");
+        return;
+      }
+    } else {
+      alert("User not found.");
+      return;
+    }
+  
     
     dispatch(loginUser({ email, password, checkbox }))
       .unwrap()
@@ -67,6 +85,7 @@ const SignIn = ({ navigation }) => {
         navigation.navigate("splash-screen");
       });
   };
+  
   
 
   return (
@@ -77,8 +96,8 @@ const SignIn = ({ navigation }) => {
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <ImageBackground
         source={require("../../assets/images/bk-login.jpg")}
-        style={{ flex: 1 }}
-        imageStyle={{ resizeMode: "cover" }}
+        style={styles.backgroundImage}
+        
       >
         <View style={styles.container}>
           <Image
@@ -185,11 +204,10 @@ export default SignIn;
 
 const styles = StyleSheet.create({
   backgroundImage: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0
+   flex: 1,
+   width: "100%",
+    height:height,
+    resizeMode: 'fit',
   },
   container: {
     flex: 1,
@@ -328,7 +346,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#ffffff',
     fontSize: 20,
-    marginBottom: 160,
+    marginBottom: 200,
     fontWeight: '500',
     fontFamily: 'nova',
   },

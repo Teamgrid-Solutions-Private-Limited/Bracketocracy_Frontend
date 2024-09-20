@@ -4,7 +4,7 @@ import { API_MAIN } from "./API";
 
 export const placeBet = createAsyncThunk(
   "bet/placeBet",
-  async ({ matchId, userId, selectedWinner, status, seasonId }, thunkAPI) => {
+  async ({ matchId, userId, selectedWinner, status, seasonId, betScore }, thunkAPI) => {
     try {
       const response = await axios.post(
         `${API_MAIN}/bet/bet/placebet`,
@@ -14,8 +14,11 @@ export const placeBet = createAsyncThunk(
           selectedWinner,
           status,
           seasonId,
+          betScore
         }
       );
+      console.log(response.data);
+      
       return response.data;
     } catch (error) {
       console.error("Error response:", error.response?.data);
@@ -28,7 +31,7 @@ export const placeBet = createAsyncThunk(
 
 export const fetchUserBets = createAsyncThunk(
   "bet/fetchUserBets",
-  async ( userId , thunkAPI) => {
+  async ({ userId }, thunkAPI) => {
     try {
       const response = await axios.get(
         `${API_MAIN}/bet/bet/user-bets/${userId}`
@@ -46,13 +49,13 @@ export const fetchUserBets = createAsyncThunk(
 export const updateRound = createAsyncThunk(
   "bet/updateRound",
   async (
-    { id, matchId, userId, selectedWinner, status, seasonId },
+    { id, matchId, userId, selectedWinner, status, seasonId, betScore },
     thunkAPI
   ) => {
     try {
       const response = await axios.put(
         `${API_MAIN}/bet/bet/update/${id}`,
-        { matchId, userId, selectedWinner, status, seasonId }
+        { matchId, userId, selectedWinner, status, seasonId, betScore }
       );
       return response.data;
     } catch (error) {
@@ -80,6 +83,8 @@ const betSlice = createSlice({
         state.error = null;
       })
       .addCase(placeBet.fulfilled, (state, action) => {
+        console.log(action.payload);
+        
         state.loading = false;
         state.userBets = action.payload; // Assuming new bets are appended
       })

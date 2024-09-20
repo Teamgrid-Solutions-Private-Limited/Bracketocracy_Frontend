@@ -18,7 +18,7 @@ const Elite = ({ matches, rounds, teams, getRemainingTime, userId }) => {
   const handleTeamSelect = (matchId, teamName) => {
     // Check if bidding period is over for the specific match
     rounds.find((round) => {
-      if (round.slug === "elite-8") {
+      if (round.slug === "round-4") {
         const { formattedTime, remainingTimeInMs } = getRemainingTime(
           round.biddingEndDate
         );
@@ -125,7 +125,7 @@ const Elite = ({ matches, rounds, teams, getRemainingTime, userId }) => {
 
   if (matches.length > 0) {
     const championMatchRound = matches.find(
-      (matches) => matches?.round?.slug === "elite-8"
+      (matches) => matches?.round?.slug === "round-4"
     );
 
     if (!championMatchRound) return null;
@@ -133,7 +133,7 @@ const Elite = ({ matches, rounds, teams, getRemainingTime, userId }) => {
     return (
       <View style={styles.matchContainer}>
         {rounds.map((round) => {
-          if (round.slug == "elite-8") {
+          if (round.slug === "round-4") {
             return (
               <View style={styles.headerContainer} key={round._id}>
                 <Text style={styles.headerText}>{round.name}</Text>
@@ -161,7 +161,7 @@ const Elite = ({ matches, rounds, teams, getRemainingTime, userId }) => {
         })}
         {matches.length > 0 &&
           matches.map((val, index) => {
-            if (val?.round?.slug == "elite-8") {
+            if (val?.round?.slug === "round-4") {
               return (
                 <View
                   style={[styles.bodyContainer, { marginBottom: 10 }]}
@@ -181,7 +181,8 @@ const Elite = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                         style={
                           userBets.length > 0 &&
                           userBets.some(
-                            (bet) => bet.selectedWinner._id === val.teamOne._id
+                            (bet) => bet.selectedWinner._id === val.teamOne._id &&
+                            bet.matchId._id === val._id
                           )
                             ? styles.teamDetailsHighlight
                             : styles.teamDetails
@@ -230,7 +231,8 @@ const Elite = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                               userBets.length > 0 &&
                               userBets.some(
                                 (bet) =>
-                                  bet.selectedWinner._id === val.teamOne._id
+                                  bet.selectedWinner._id === val.teamOne._id &&
+                                bet.matchId._id === val._id
                               )
                                 ? require("../../assets/images/basket-ball2.png")
                                 : require("../../assets/images/basket-ball.png")
@@ -250,7 +252,8 @@ const Elite = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                         style={
                           userBets.length > 0 &&
                           userBets.some(
-                            (bet) => bet.selectedWinner._id === val.teamTwo._id
+                            (bet) => bet.selectedWinner._id === val.teamTwo._id &&
+                            bet.matchId._id === val._id
                           )
                             ? styles.teamDetailsHighlight
                             : styles.teamDetails
@@ -299,7 +302,8 @@ const Elite = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                               userBets.length > 0 &&
                               userBets.some(
                                 (bet) =>
-                                  bet.selectedWinner._id === val.teamTwo._id
+                                  bet.selectedWinner._id === val.teamTwo._id &&
+                                bet.matchId._id === val._id
                               )
                                 ? require("../../assets/images/basket-ball2.png")
                                 : require("../../assets/images/basket-ball.png")
@@ -422,13 +426,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginRight: 10,
     color: "#000",
-    fontWeight: "800",
+    fontWeight: "600",
   },
   selectTeam: {
-    fontSize: 17,
+    fontSize: 19,
     marginRight: 10,
     color: "#000",
-    fontWeight: "800",
+    fontWeight: "bold",
   },
   basketballImage: {
     width: 24,

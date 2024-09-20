@@ -4,19 +4,19 @@ import { API_MAIN } from './API';
 const initialState = {
     Messages: [],
     status: 'idle',
-    leagesInMessege:{},
+    leagesInMessege: {},
     error: null,
 };
 
 
 
-export const createMessages = createAsyncThunk('createMessages', async ({leagueId,userId,message}) => {
+export const createMessages = createAsyncThunk('createMessages', async ({ leagueId, userId, message }) => {
     try {
         const response = await axios.post(
             `${API_MAIN}/message/message/add/${leagueId}`,
-            { userId, message }
-        )  
-        return response
+            { userId, message }, { headers: { 'Content-Type': 'application/json' } }
+        )
+        return response.data
     }
     catch (error) {
         throw error
@@ -25,7 +25,9 @@ export const createMessages = createAsyncThunk('createMessages', async ({leagueI
 
 export const getMessages = createAsyncThunk('getMessages', async (leagueId) => {
     try {
-        const response = await axios.get(`${API_MAIN}/message/message/show/${leagueId}`);
+        const response = await axios.get(`${API_MAIN}/message/message/show/${leagueId}`, { headers: { 'Content-Type': 'application/json' } }
+
+        );
         return response.data.data;
     } catch (error) {
         throw error;
@@ -33,7 +35,7 @@ export const getMessages = createAsyncThunk('getMessages', async (leagueId) => {
 });
 export const deleteMessages = createAsyncThunk('deleteMessages', async (leagueId) => {
     try {
-        const response = await axios.delete(`${API_MAIN}/league/league/delete/${leagueId}`);
+        const response = await axios.delete(`${API_MAIN}/league/league/delete/${leagueId}`,{headers: { 'Content-Type': 'application/json' } });
 
         return response;
     } catch (error) {
@@ -46,24 +48,13 @@ const Messageslice = createSlice({
     name: 'Messages',
     initialState,
     reducers: {
-       getLeaguesInMessage: (state, action) => {
-           state.leagesInMessege = action.payload
-       }
+        getLeaguesInMessage: (state, action) => {
+            state.leagesInMessege = action.payload
+        }
     },
     extraReducers: (builder) => {
         builder
-            // .addCase(createMessages.pending, (state) => {
-            //     state.status = 'loading';
-            // })
-            // .addCase(createMessages.fulfilled, (state, action) => {
-            //     state.status = 'idle';
-            //     state.Messages = action.payload;
-            //     state.error = null;
-            // })
-            // .addCase(createMessages.rejected, (state, action) => {
-            //     state.status = 'error';
-            //     state.error = action.payload;
-            // })
+
             .addCase(getMessages.pending, (state) => {
                 state.status = 'loading';
             })
@@ -79,5 +70,5 @@ const Messageslice = createSlice({
 
     },
 });
-export const  {getLeaguesInMessage} = Messageslice.actions
+export const { getLeaguesInMessage } = Messageslice.actions
 export default Messageslice.reducer;

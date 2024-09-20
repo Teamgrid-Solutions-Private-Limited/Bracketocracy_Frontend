@@ -20,20 +20,19 @@ const AllMatches = ({ matches, allMatches }) => {
   const dispatch = useDispatch();
   const [id, setId] = useState(null);
 
- 
-
-  useEffect(() => {
+  useEffect(()=>{
     const getId = async () => {
       try {
         const userId = await AsyncStorage.getItem("userId");
         setId(userId);
-        // console.log("userId", userId);
+        
       } catch (error) {
         console.error("Error retrieving token:", error);
       }
     };
     getId();
-  }, []);
+  },[id])
+  console.log("userId", id);
 
   useEffect(() => {
     dispatch(getRounds());
@@ -87,6 +86,7 @@ const AllMatches = ({ matches, allMatches }) => {
         rounds={rounds}
         teams={teams}
         getRemainingTime={getRemainingTime}
+        userId={id}
       />
       <FinalMatchs
         matches={allMatches}

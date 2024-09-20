@@ -8,14 +8,17 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   View,
+  Dimensions
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { createUsers } from "../redux/loginSlice";
 import Checkbox from "expo-checkbox";
 import { AntDesign } from "@expo/vector-icons";
 import { fetchAllUsers } from "../redux/leaguesSlice";
+const height=Dimensions.get('window').height
 const SignUp = ({ navigation }) => {
   const { allUsers } = useSelector((state) => state.leagues)
+ 
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(fetchAllUsers())
@@ -186,8 +189,8 @@ const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
     width: "100%",
-    height: "100%",
-    resizeMode: 'cover',
+    minHeight: height,
+    resizeMode: 'fit',
   },
   logo: {
     width: "75%",
@@ -322,7 +325,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#ffffff',
     fontSize: 20,
-    marginBottom: 160,
+    marginBottom: 200,
     fontWeight: '500',
   },
 });

@@ -183,7 +183,8 @@ const Round2 = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                         style={
                           userBets.length > 0 &&
                           userBets.some(
-                            (bet) => bet.selectedWinner._id === val.teamOne._id
+                            (bet) => bet.selectedWinner._id === val.teamOne._id &&
+                            bet.matchId._id === val._id
                           )
                             ? styles.teamDetailsHighlight
                             : styles.teamDetails
@@ -230,7 +231,8 @@ const Round2 = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                               userBets.length > 0 &&
                               userBets.some(
                                 (bet) =>
-                                  bet.selectedWinner._id === val.teamOne._id
+                                  bet.selectedWinner._id === val.teamOne._id &&
+                                bet.matchId._id === val._id
                               )
                                 ? require("../../assets/images/basket-ball2.png")
                                 : require("../../assets/images/basket-ball.png")
@@ -250,7 +252,8 @@ const Round2 = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                         style={
                           userBets.length > 0 &&
                           userBets.some(
-                            (bet) => bet.selectedWinner._id === val.teamTwo._id
+                            (bet) => bet.selectedWinner._id === val.teamTwo._id &&
+                            bet.matchId._id === val._id
                           )
                             ? styles.teamDetailsHighlight
                             : styles.teamDetails
@@ -297,7 +300,8 @@ const Round2 = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                               userBets.length > 0 &&
                               userBets.some(
                                 (bet) =>
-                                  bet.selectedWinner._id === val.teamTwo._id
+                                  bet.selectedWinner._id === val.teamTwo._id &&
+                                bet.matchId._id === val._id
                               )
                                 ? require("../../assets/images/basket-ball2.png")
                                 : require("../../assets/images/basket-ball.png")
@@ -420,13 +424,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginRight: 10,
     color: "#000",
-    fontWeight: "800",
+    fontWeight: "600",
   },
   selectTeam: {
-    fontSize: 17,
+    fontSize: 19,
     marginRight: 10,
     color: "#000",
-    fontWeight: "800",
+    fontWeight: "bold",
   },
   basketballImage: {
     width: 24,

@@ -8,7 +8,7 @@ const CountdownTimer = () => {
     state?.count?.countdowns?.info ? state.count.countdowns.info : []
   );
 
-  console.log(countDown);
+  // console.log(countDown);
   
 
   const dispatch = useDispatch();
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     borderRadius:20
   },
   text: {
-    fontSize: 55,
+    fontSize: 45,
     fontWeight: "bold",
     color: "#ebb04b",
   },

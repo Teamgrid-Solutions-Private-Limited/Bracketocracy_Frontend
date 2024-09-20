@@ -22,15 +22,19 @@ const CreateLeagueModal = ({ visible, onClose, currentLeague, title, setEmails, 
     const handleSubmit = async (actionType) => {
         const userId = await AsyncStorage.getItem('userId');
         const cleanedTitle = title.trim();
-        const emailArray = emails
+    
+        // Split emails, remove whitespace, filter empty strings, and remove duplicates
+        const emailArray = [...new Set(emails
             .split(',')
             .map(email => email.trim())
-            .filter(email => email !== '');
+            .filter(email => email !== '')
+        )];
+    
         if (!cleanedTitle) {
             alert('Title cannot be empty');
             return;
         }
-
+    
         const payload = {
             title: cleanedTitle,
             emails: emailArray,
@@ -38,19 +42,20 @@ const CreateLeagueModal = ({ visible, onClose, currentLeague, title, setEmails, 
             userId,
             action: actionType
         };
-
+    
         if (currentLeague && actionType === 'update') {
             payload.leagueId = currentLeague._id;
         }
-
+    
         dispatch(createUpdateLeagues(payload))
             .unwrap()
             .then(() => {
                 dispatch(getLeagues(userId));
             });
-
+    
         onClose();
     };
+    
 
 
     return (

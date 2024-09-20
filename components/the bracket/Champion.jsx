@@ -5,7 +5,7 @@ import moment from "moment";
 const Champion = ({ matches, rounds, getRemainingTime }) => {
   if (matches.length > 0) {
     const championMatchRound = matches.find(
-      (matches) => matches?.round?.slug === "champion-match"
+      (matches) => matches?.round?.slug === "round-6"
     );
 
     if (!championMatchRound) return null;
@@ -14,7 +14,7 @@ const Champion = ({ matches, rounds, getRemainingTime }) => {
       <View style={styles.container}>
         <Text style={styles.title}>FINAL (CHAMPIONSHIP GAME)</Text>
         {rounds.map((round) => {
-          if (round.slug == "champion-match") {
+          if (round.slug === "round-6") {
             return (
               <View key={round._id}>
                 <Text style={styles.date}>

@@ -8,12 +8,16 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
   const [selectedTeams, setSelectedTeams] = useState({});
   const [disabled, setDisabled] = useState(false);
   const dispatch = useDispatch();
-  const {userBets} = useSelector((state) =>state.bet);
+  const userBets = useSelector((state) =>
+    state.bet.userBets && state.bet.userBets.length > 0
+      ? state.bet.userBets
+      : []
+  );
 
   const handleTeamSelect = (matchId, teamName) => {
     // Check if bidding period is over for the specific match
     rounds.find((round) => {
-      if (round.slug === "play-in-matches") {
+      if (round.slug === "playin") {
         const { formattedTime, remainingTimeInMs } = getRemainingTime(
           round.biddingEndDate
         );
@@ -48,7 +52,7 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
 
   useEffect(() => {
     if (userId) {
-      dispatch(fetchUserBets( userId ));
+      dispatch(fetchUserBets({ userId }));
     }
   }, [dispatch, userId]);
 
@@ -117,7 +121,7 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
 
   if (matches.length > 0) {
     const championMatchRound = matches.find(
-      (matches) => matches?.round?.slug === "play-in-matches"
+      (matches) => matches?.round?.slug === "playin"
     );
 
     if (!championMatchRound) return null;
@@ -125,7 +129,7 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
       <View style={styles.matchContainer}>
         {rounds.length > 0 &&
           rounds.map((round) => {
-            if (round?.slug === "play-in-matches") {
+            if (round?.slug === "playin") {
               return (
                 <View style={styles.container} key={round._id}>
                   <Text style={styles.title}>{round.name}</Text>
@@ -152,7 +156,7 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
           })}
         {matches.length > 0 &&
           matches.map((val) => {
-            if (val?.round?.slug === "play-in-matches") {
+            if (val?.round?.slug === "playin") {
               return (
                 <View
                   style={[styles.bodyContainer, { marginBottom: 10 }]}
@@ -171,7 +175,8 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                       <View
                         style={
                           userBets.some(
-                            (bet) => bet.selectedWinner._id === val.teamOne._id
+                            (bet) => bet.selectedWinner._id === val.teamOne._id &&
+                            bet.matchId._id === val._id
                           )
                             ? styles.teamDetailsHighlight
                             : styles.teamDetails
@@ -206,7 +211,8 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                             source={
                               userBets.some(
                                 (bet) =>
-                                  bet.selectedWinner._id === val.teamOne._id
+                                  bet.selectedWinner._id === val.teamOne._id &&
+                                bet.matchId._id === val._id
                               )
                                 ? require("../../assets/images/basket-ball2.png")
                                 : require("../../assets/images/basket-ball.png")
@@ -230,7 +236,8 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                       <View
                         style={
                           userBets.some(
-                            (bet) => bet.selectedWinner._id === val.teamTwo._id
+                            (bet) => bet.selectedWinner._id === val.teamTwo._id &&
+                            bet.matchId._id === val._id
                           )
                             ? styles.teamDetailsHighlight
                             : styles.teamDetails
@@ -265,7 +272,8 @@ const PlayIn = ({ matches, rounds, teams, getRemainingTime, userId }) => {
                             source={
                               userBets.some(
                                 (bet) =>
-                                  bet.selectedWinner._id === val.teamTwo._id
+                                  bet.selectedWinner._id === val.teamTwo._id &&
+                                bet.matchId._id === val._id
                               )
                                 ? require("../../assets/images/basket-ball2.png")
                                 : require("../../assets/images/basket-ball.png")
@@ -385,10 +393,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginRight: 10,
     color: "#000",
-    fontWeight: "700",
+    fontWeight: "600",
   },
   selectTeam: {
-    fontSize: 17,
+    fontSize: 19,
     marginRight: 10,
     color: "#000",
     fontWeight: "bold",

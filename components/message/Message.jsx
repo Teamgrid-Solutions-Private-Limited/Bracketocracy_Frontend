@@ -1,15 +1,15 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, TextInput, Pressable, ActivityIndicator } from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView, TextInput, Pressable, ActivityIndicator,Alert } from "react-native";
 import profile from "../../assets/images/profile.png";
-import user from "../../assets/images/user.png"; 
+import user from "../../assets/images/userIcon.png"; 
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useDispatch, useSelector } from "react-redux";
 import { createMessages, getMessages } from "../redux/messageSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { fetchEditProfile } from "../redux/editProfileSlice";
 import Header from "../header";
 import Footer from "../footer";
 import { fetchMultipleProfiles } from "../redux/leaguesSlice";
+import { formatDistanceToNow } from "date-fns";
 
 const MessageItems = ({ items, profiles }) => {
   const profileData = useMemo(() => profiles.find((p) => p._id === items.userId[0]), [items?.userId, profiles]);
@@ -30,14 +30,25 @@ const Message = () => {
   const [loading, setLoading] = useState(true); // Combined loading state
   const dispatch = useDispatch();
 
+  
+
   const handleSendMessage = async () => {
+    const trimmedMessage = message.trim(); // Trim both ends of the message
+  
+    if (!trimmedMessage) {
+      // If the message is empty, show an alert
+      Alert.alert("Error", "Message cannot be empty");
+      return;
+    }
+  
     const userId = await AsyncStorage.getItem("userId");
     const leagueId = leagesInMessege._id;
-    dispatch(createMessages({ leagueId, userId, message }))
+    dispatch(createMessages({ leagueId, userId, message: trimmedMessage })) // Use the trimmed message
       .unwrap()
       .then(() => dispatch(getMessages(leagesInMessege._id)));
-    setMessage("");
+    setMessage(""); // Clear the input field after sending
   };
+  
 
   // Fetch messages and profiles when league changes
   useEffect(() => {
@@ -104,7 +115,7 @@ const Message = () => {
                         <MessageItems items={item} profiles={profiles} />
                       </View>
                       <Text style={styles.time}>
-                        {new Date(item.created).toLocaleString()}
+                        {formatDistanceToNow(item.created, { addSuffix: true })}
                       </Text>
                     </View>
                   </View>

@@ -1,24 +1,37 @@
 import { Image, StyleSheet, Text, View, TouchableOpacity, Linking } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getSponsor } from '../redux/sponsorSlice';
 
 const Footer = () => {
-  const handlePress = () => {
-    Linking.openURL('https://godigitalalchemy.com/');
-  };
+  const dispatch = useDispatch();
+  const { sponsors } = useSelector((state) => state.sponsor);
+
+  useEffect(() => {
+    dispatch(getSponsor());
+  }, [dispatch]);
+
+  // Filter sponsors to get the first one with status 'yes'
+  const activeSponsor = sponsors.find(sponsor => sponsor.status === 'yes');
 
   return (
     <View style={styles.footerContainer}>
       <Text style={styles.sponsorText}>This year's bracket is sponsored by</Text>
-      {/* <TouchableOpacity onPress={handlePress}> */}
-        <Image
-          source={require('../../assets/images/digitalacademy.png')}
-          style={styles.sponsorImage}
-          
-        />
-      {/* </TouchableOpacity> */}
+      {activeSponsor ? (
+        <>
+          <Text style={styles.sponsorText}>{activeSponsor.companyName}</Text>
+          {/* Uncomment and use if you want to display sponsor's logo */}
+          {/* <Image
+            source={{ uri: activeSponsor.logo }}  // Ensure the logo URL is valid and accessible
+            style={styles.sponsorImage}
+          /> */}
+        </>
+      ) : (
+        <Text style={styles.sponsorText}>No active sponsors at the moment</Text>
+      )}
     </View>
   );
-}
+};
 
 export default Footer;
 
