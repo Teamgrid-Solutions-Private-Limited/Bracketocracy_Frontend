@@ -38,7 +38,7 @@ const SignUp = ({ navigation }) => {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  const usernamePattern = /^(?=.*[a-zA-Z])(?=.*\d)[A-Za-z\d]+$/;
+ 
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -48,8 +48,6 @@ const SignUp = ({ navigation }) => {
       const userNameExists = allUsers.some(user => user.userName === value);
       if (userNameExists) {
         setUserNameError("Username already exists");
-      } else if (!usernamePattern.test(value)) {
-        setUserNameError("Username must contain both letters and numbers");
       } else {
         setUserNameError("");
       }

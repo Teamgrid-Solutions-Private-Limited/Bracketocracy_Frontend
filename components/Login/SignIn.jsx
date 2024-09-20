@@ -19,12 +19,12 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Checkbox from "expo-checkbox";
 import { API_MAIN } from "../redux/API";
 import { fetchAllUsers } from "../redux/leaguesSlice";
-const height=Dimensions.get('window').height
+const height = Dimensions.get('window').height
 const SignIn = ({ navigation }) => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(fetchAllUsers())
-  },[])
+  }, [])
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [checkbox, setCheckbox] = useState(false);
@@ -33,7 +33,7 @@ const SignIn = ({ navigation }) => {
   const [passwordError, setPasswordError] = useState("");
 
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const {allUsers}=useSelector((state)=>state.leagues)
+  const { allUsers } = useSelector((state) => state.leagues)
 
   const handleEmailChange = (text) => {
     setEmail(text);
@@ -60,143 +60,138 @@ const {allUsers}=useSelector((state)=>state.leagues)
     if (!password) {
       setPasswordError("Password is required");
     }
-  
+
     if (!email || !password || emailError || passwordError) {
       alert('Please fix the errors before signing in');
       return;
     }
-  
+
     const user = allUsers.find((u) => u.email === email);
     if (user) {
       if (user.active === "no") {
         alert("Your account is inactive. Please contact support.");
         return;
       }
-    } else {
-      alert("User not found.");
-      return;
-    }
-  
-    
+    } 
     dispatch(loginUser({ email, password, checkbox }))
       .unwrap()
       .then(() => {
         navigation.navigate("splash-screen");
       });
   };
-  
-  
+
+
   return (
     <KeyboardAvoidingView
-    behavior={Platform.OS === "ios" ? "padding" : "height"}
-    style={{ flex: 1 }}
-  >
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <ImageBackground
-        source={require("../../assets/images/bk-login.jpg")}
-        style={styles.backgroundImage}
-        
-      >
-        <View style={styles.container}>
-          <Image
-            source={require("../../assets/images/bracketocracy-dark-logo.png")}
-            style={styles.logo}
-          />
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <ImageBackground
+          source={require("../../assets/images/bk-login.jpg")}
+          style={styles.backgroundImage}
 
-          <View style={styles.formContainer}>
-            <Text style={styles.header}>SIGN IN</Text>
-
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={handleEmailChange}
+        >
+          <View style={styles.container}>
+            <Image
+              source={require("../../assets/images/bracketocracy-dark-logo.png")}
+              style={styles.logo}
             />
-            {emailError ? (
-              <Text style={styles.errorText}>{emailError}</Text>
-            ) : null}
 
-            <View style={styles.passwordContainer}>
+            <View style={styles.formContainer}>
+              <Text style={styles.header}>SIGN IN</Text>
+
               <TextInput
                 style={styles.input}
-                placeholder="Password"
-                secureTextEntry={eye}
+                placeholder="Email"
+                keyboardType="email-address"
                 autoCapitalize="none"
-                value={password}
-                onChangeText={handlePasswordChange}
+                value={email}
+                onChangeText={handleEmailChange}
               />
-              {passwordError ? (
-                <Text style={styles.errorText}>{passwordError}</Text>
+              {emailError ? (
+                <Text style={styles.errorText}>{emailError}</Text>
               ) : null}
-              <TouchableOpacity
-                style={styles.eyeIcon}
-                onPress={() => setEye(!eye)}
-              >
-                {eye ? (
-                  <AntDesign name="eye" size={24} color="black" />
-                ) : (
-                  <AntDesign name="eyeo" size={24} color="black" />
-                )}
-              </TouchableOpacity>
-            </View>
 
-            <View style={styles.rememberContainer}>
-              <View style={styles.wrapper}>
-                <Checkbox
-                  value={checkbox}
-                  onValueChange={setCheckbox}
-                  style={styles.checkboxContainer}
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  secureTextEntry={eye}
+                  autoCapitalize="none"
+                  value={password}
+                  onChangeText={handlePasswordChange}
                 />
-                <Text style={styles.rememberText}>Remember Me</Text>
+                {passwordError ? (
+                  <Text style={styles.errorText}>{passwordError}</Text>
+                ) : null}
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={() => setEye(!eye)}
+                >
+                  {eye ? (
+                    <AntDesign name="eye" size={24} color="black" />
+                  ) : (
+                    <AntDesign name="eyeo" size={24} color="black" />
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.rememberContainer}>
+                <View style={styles.wrapper}>
+                  <Checkbox
+                    value={checkbox}
+                    onValueChange={setCheckbox}
+                    style={styles.checkboxContainer}
+                  />
+                  <Text style={styles.rememberText}>Remember Me</Text>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("forget-password")}
+                >
+                  <Text style={styles.forgotPassword}>Forgot password?</Text>
+                </TouchableOpacity>
               </View>
 
               <TouchableOpacity
-                onPress={() => navigation.navigate("forget-password")}
+                style={styles.signInButton}
+                onPress={handleSignIn}
               >
-                <Text style={styles.forgotPassword}>Forgot password?</Text>
+                <Text style={styles.signInButtonText}>SIGN IN</Text>
               </TouchableOpacity>
+
+              <View style={styles.signUpContainer}>
+                <Text style={styles.noAccountText}>Don't have an account?</Text>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("sign-up")}
+                >
+                  <Text style={styles.signUpText}>Sign up</Text>
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.orText}>- Or sign in with -</Text>
+
+              <View style={styles.socialContainer}>
+                <TouchableOpacity style={styles.socialButton}>
+                  <Image
+                    source={require("../../assets/images/facebook.png")}
+                    style={styles.img}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.socialButton}>
+                  <Image
+                    source={require("../../assets/images/google.png")}
+                    style={styles.img}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
 
-            <TouchableOpacity
-              style={styles.signInButton}
-              onPress={handleSignIn}
-            >
-              <Text style={styles.signInButtonText}>SIGN IN</Text>
-            </TouchableOpacity>
-
-            <View style={styles.signUpContainer}>
-              <Text style={styles.noAccountText}>Don't have an account?</Text>
-              <TouchableOpacity
-                onPress={() => navigation.navigate("sign-up")}
-              >
-                <Text style={styles.signUpText}>Sign up</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.orText}>- Or sign in with -</Text>
-
-            <View style={styles.socialContainer}>
-              <TouchableOpacity style={styles.socialButton}>
-                <Image
-                  source={require("../../assets/images/facebook.png")}
-                  style={styles.img}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton}>
-                <Image
-                  source={require("../../assets/images/google.png")}
-                  style={styles.img}
-                />
-              </TouchableOpacity>
-            </View>
           </View>
-
-        </View>
-        <Text style={styles.madnessText}>LET MADNESS REIGN</Text>
-      </ImageBackground>
-    </ScrollView>
-  </KeyboardAvoidingView>
+          <Text style={styles.madnessText}>LET MADNESS REIGN</Text>
+        </ImageBackground>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -204,9 +199,9 @@ export default SignIn;
 
 const styles = StyleSheet.create({
   backgroundImage: {
-   flex: 1,
-   width: "100%",
-    height:height,
+    flex: 1,
+    width: "100%",
+    height: height,
     resizeMode: 'fit',
   },
   container: {
