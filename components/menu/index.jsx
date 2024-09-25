@@ -4,6 +4,7 @@ import { Entypo, FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import menu from "@/assets/images/bk-menu.jpg";
 import { useDispatch} from 'react-redux';
 import { logOut } from '../redux/loginSlice';
+import { resetLeagues } from '../redux/leaguesSlice';
 
 const NavigationButton = ({ onPress, text, icon }) => (
     <TouchableOpacity onPress={onPress} style={styles.navigationButton}>
@@ -50,6 +51,7 @@ const dispatch = useDispatch();
                     text: "Yes",
                     onPress: async () => {
                         try {
+                            dispatch(resetLeagues());
                             await dispatch(logOut());
                             props.navigation.replace("sign-in")
                         } catch (error) {

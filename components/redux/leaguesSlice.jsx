@@ -136,7 +136,12 @@ export const deleteLeaguesUser = createAsyncThunk(
 const Leagueslice = createSlice({
   name: 'leagues',
   initialState,
-  reducers: {},
+  reducers: {
+    resetLeagues: (state) => {
+      state.leagues = [];
+      state.rankArr = [];
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createUpdateLeagues.fulfilled, (state, action) => {
@@ -211,5 +216,5 @@ const Leagueslice = createSlice({
       });
   },
 });
-
+export const { resetLeagues } = Leagueslice.actions;
 export default Leagueslice.reducer;

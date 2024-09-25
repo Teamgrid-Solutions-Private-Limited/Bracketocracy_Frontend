@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, SafeAreaView, StyleSheet, ActivityIndicator, StatusBar } from 'react-native';
+import { Text, View, SafeAreaView, StyleSheet, StatusBar, ActivityIndicator, Platform } from 'react-native';
 import RootNavigator from './RootNavigator';
 import * as Font from 'expo-font';
 import { store } from '../components/redux/store';
@@ -7,7 +7,8 @@ import { Provider } from 'react-redux';
 
 export default function Index() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
-
+  const [color, setColor] = useState("")
+  const [backgroundColor, setBackgroundColor] = useState("")
   useEffect(() => {
     const loadFonts = async () => {
       await Font.loadAsync({
@@ -15,7 +16,14 @@ export default function Index() {
       });
       setFontsLoaded(true);
     };
-
+    if (Platform.OS === 'android') {
+      setColor("light")
+      setBackgroundColor("#000000")
+    }
+    else {
+      setColor("dark")
+      setBackgroundColor("#ffffff")
+    }
     loadFonts();
 
   }, []);
@@ -29,17 +37,12 @@ export default function Index() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-        <StatusBar
-          barStyle="light-content"
-          hidden={false}
-          backgroundColor='black'
-          translucent={false}
-        />
-      <Provider store={store} >
-        <RootNavigator />
-      </Provider>
-    </SafeAreaView>
+      <SafeAreaView style={styles.container}>
+        <StatusBar backgroundColor={backgroundColor} barStyle={color} />
+        <Provider store={store} >
+          <RootNavigator />
+        </Provider>
+      </SafeAreaView>
   );
 }
 
