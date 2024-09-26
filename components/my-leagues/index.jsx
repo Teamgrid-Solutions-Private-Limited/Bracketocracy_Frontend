@@ -16,7 +16,7 @@ import LeagueItem from "./subComponents/LeagueItem"
 const Index = () => {
     const dispatch = useDispatch();
     const { editProfile, status } = useSelector((state) => state.editProfile);
-    const { leagues, rankArr } = useSelector((state) => state.leagues);
+    const { leagues, rankArr, error } = useSelector((state) => state.leagues);
     const [modalVisible, setModalVisible] = useState(false);
     const [invitemodalVisible, setInviteModalVisible] = useState(false);
     const [expandedLeagueIndex, setExpandedLeagueIndex] = useState(null);
@@ -71,6 +71,7 @@ const Index = () => {
             try {
                 const storedUserId = await AsyncStorage.getItem('userId');
                 if (storedUserId) {
+                    // console.log("storedUserId", storedUserId);
                     dispatch(getLeagues(storedUserId));
                 }
             } catch (error) {
@@ -89,7 +90,7 @@ const Index = () => {
         dispatch(deleteLeagues(leagueId))
     };
     const handleLoadMore = () => {
-        setItemsToShow(prev => prev + 10); 
+        setItemsToShow(prev => prev + 10);
     };
     return (
         <View style={{ flex: 1 }}>
@@ -113,25 +114,28 @@ const Index = () => {
                 <View style={styles.scorecard}>
                     <Text style={styles.scorecardText}>My Leagues</Text>
                 </View>
-                {leagues && leagues.length > 0 ? (leagues?.map((league, index) => (
-                    <View style={styles.myLeagues} key={index}>
-                        <LeagueItem
-                            isExpanded={expandedLeagueIndex === index}
-                            onClick={() => handleLeaguePress(index, league)
-                            }
-                            onEdit={onEdit}
-                            league={league}
-                            openModal={() => openModal("invite")}
-                            handleDelete={() => handleDelete(league._id)}
-                        />
+                {!error?.message ?
+                    (leagues?.map((league, index) => (
+                        <View style={styles.myLeagues} key={index}>
+                            <LeagueItem
+                                isExpanded={expandedLeagueIndex === index}
+                                onClick={() => handleLeaguePress(index, league)
+                                }
+                                onEdit={onEdit}
+                                league={league}
+                                openModal={() => openModal("invite")}
+                                handleDelete={() => handleDelete(league._id)}
+                            />
 
-                        {expandedLeagueIndex === index && (<>
-                            <InviteFriendModal visible={invitemodalVisible} onClose={() => closeModal("invite")} emails={inviteEmails} setEmails={setInviteEmails} league={league._id} />
-                        </>
-                        )}
+                            {expandedLeagueIndex === index && (<>
+                                <InviteFriendModal visible={invitemodalVisible} onClose={() => closeModal("invite")} emails={inviteEmails} setEmails={setInviteEmails} league={league._id} />
+                            </>
+                            )}
 
-                    </View>
-                ))) : <View style={styles.noLeagues} ><Text>No Leagues Found</Text></View>}
+                        </View>
+                    ))) :
+                    <View style={styles.noLeagues} ><Text>No Leagues Found</Text></View>
+                }
 
                 <View style={styles.buttonWrapper}>
                     <TouchableOpacity style={styles.createButton} onPress={openModal}>
@@ -281,7 +285,7 @@ const styles = StyleSheet.create({
         color: "#ebb04b",
         textTransform: "uppercase"
     },
-    
+
     rightArrow: {
         width: 10,
         height: 10,

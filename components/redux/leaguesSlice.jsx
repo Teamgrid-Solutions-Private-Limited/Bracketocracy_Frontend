@@ -53,8 +53,10 @@ export const getLeagues = createAsyncThunk(
       const response = await axios.get(`${API_MAIN}/league/league/search/${userId}`, {
         headers: { 'Content-Type': 'application/json' }
       });
+      // console.log("response")
       return response.data.data;  // Return serializable data
     } catch (error) {
+      // console.log(error,"error")
       return rejectWithValue(error.response?.data || 'An error occurred');
     }
   }
@@ -191,7 +193,6 @@ const Leagueslice = createSlice({
       .addCase(getRankArr.fulfilled, (state, action) => {
         state.status = 'idle';
         state.rankArr = action.payload;
-        state.error = null;
       })
       .addCase(getRankArr.rejected, (state, action) => {
         state.status = 'error';
