@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import profileImage from "@/assets/images/user.jpg";
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import profileImage from '../../assets/images/EmptyProfile.png';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchEditProfile } from '../redux/editProfileSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -13,10 +13,13 @@ import LeaderboardItem from "./subComponents/LeaderboardItem"
 import ProfileItem from "./subComponents/ProfileItem"
 import StatsItem from "./subComponents/StatsItem"
 import LeagueItem from "./subComponents/LeagueItem"
-const Index = () => {
+import Loader from '../loader/Loader';
+import { useFocusEffect } from '@react-navigation/native';
+import { fetchNewSeasonIds } from '../redux/seasonsSlice';
+const Index = ({ navigation }) => {
     const dispatch = useDispatch();
-    const { editProfile, status } = useSelector((state) => state.editProfile);
-    const { leagues, rankArr, error } = useSelector((state) => state.leagues);
+    const { editProfile } = useSelector((state) => state.editProfile);
+    const { leagues, rankArr, error, leagueStatus } = useSelector((state) => state.leagues);
     const [modalVisible, setModalVisible] = useState(false);
     const [invitemodalVisible, setInviteModalVisible] = useState(false);
     const [expandedLeagueIndex, setExpandedLeagueIndex] = useState(null);
@@ -26,6 +29,9 @@ const Index = () => {
     const [inviteEmails, setInviteEmails] = useState('');
     const [allowInvitation, setAllowInvitation] = useState(false);
     const [itemsToShow, setItemsToShow] = useState(10);
+    // const {newSeasonIds}=useSelector((state) => state.seasons);
+
+
     const openModal = (action) => {
         if (action === "invite") {
             setInviteModalVisible(true);
@@ -51,27 +57,12 @@ const Index = () => {
         }
     };
     useEffect(() => {
-        dispatch(fetchAllUsers());
-        dispatch(getRankArr());
+       
         const fetchUserData = async () => {
             try {
                 const storedUserId = await AsyncStorage.getItem('userId');
                 if (storedUserId) {
                     dispatch(fetchEditProfile(storedUserId));
-                }
-            } catch (error) {
-                console.error('Failed to fetch user ID:', error);
-            }
-        };
-        fetchUserData();
-
-    }, [dispatch]);
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const storedUserId = await AsyncStorage.getItem('userId');
-                if (storedUserId) {
-                    // console.log("storedUserId", storedUserId);
                     dispatch(getLeagues(storedUserId));
                 }
             } catch (error) {
@@ -79,18 +70,59 @@ const Index = () => {
             }
         };
         fetchUserData();
-    }, [deleteLeagues, dispatch])
 
-    const userRank = rankArr.find(rank => rank.userId._id === editProfile?._id);
+    }, []);
 
-    const handleLeaguePress = (index, league) => {
-        setExpandedLeagueIndex(expandedLeagueIndex === index ? null : index);
-    };
+    useEffect(() => {
+        const fetchUserData = async () => {
+          try {
+            const newSeasonIds = await dispatch(fetchNewSeasonIds()).unwrap();
+            if (newSeasonIds.length > 0) {
+              dispatch(getRankArr(newSeasonIds[0]));
+            }
+          } catch (error) {
+            console.error('Failed to fetch new season IDs:', error);
+          }
+        };
+      
+        fetchUserData();
+      }, []);
+
+    const userRank = rankArr?.find(rank => rank.userId._id === editProfile?._id);
+
     const handleDelete = (leagueId) => {
-        dispatch(deleteLeagues(leagueId))
+        Alert.alert(
+            "Delete League",
+            "Are you sure you want to delete this league?",
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel",
+                },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: () => {
+                        dispatch(deleteLeagues(leagueId))
+                            .unwrap()
+                            .then(() => {
+                                dispatch(getLeagues(editProfile?._id));
+                            })
+                            .catch((error) => {
+                                console.error("Failed to delete league:", error);
+                            });
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
     };
     const handleLoadMore = () => {
         setItemsToShow(prev => prev + 10);
+    };
+
+    const handleLeaguePress = (leagueId) => {
+        setExpandedLeagueIndex(prev => prev === leagueId ? null : leagueId);
     };
     return (
         <View style={{ flex: 1 }}>
@@ -101,8 +133,8 @@ const Index = () => {
                 </View>
                 <View style={styles.profileContainer}>
                     <ProfileItem
-                        imageSource={profileImage}
-                        mainText={editProfile?.userName}
+                        imageSource={editProfile?.profilePhoto ? { uri: editProfile?.profilePhoto } : profileImage}
+                        mainText={editProfile?.firstName + " " + editProfile?.lastName}
                         subText={editProfile?.email}
                     />
                     <View style={styles.statsContainer}>
@@ -114,28 +146,36 @@ const Index = () => {
                 <View style={styles.scorecard}>
                     <Text style={styles.scorecardText}>My Leagues</Text>
                 </View>
-                {!error?.message ?
-                    (leagues?.map((league, index) => (
-                        <View style={styles.myLeagues} key={index}>
-                            <LeagueItem
-                                isExpanded={expandedLeagueIndex === index}
-                                onClick={() => handleLeaguePress(index, league)
-                                }
-                                onEdit={onEdit}
-                                league={league}
-                                openModal={() => openModal("invite")}
-                                handleDelete={() => handleDelete(league._id)}
-                            />
-
-                            {expandedLeagueIndex === index && (<>
-                                <InviteFriendModal visible={invitemodalVisible} onClose={() => closeModal("invite")} emails={inviteEmails} setEmails={setInviteEmails} league={league._id} />
-                            </>
-                            )}
-
+                {error?.message === "No leagues found for this user"? (
+                    <View style={styles.noLeagues}>
+                        <Text>No Leagues Found</Text>
+                    </View>
+                ) : (
+                    leagueStatus === "loading" ? (
+                        <View style={[styles.myLeagues, { paddingVertical: 20, backgroundColor: "transparent", shadowColor: "transparent" }]}>
+                            <Loader size={35} />
                         </View>
-                    ))) :
-                    <View style={styles.noLeagues} ><Text>No Leagues Found</Text></View>
-                }
+                    ) : (
+                        leagues.length > 0 &&
+                        leagues.map((league) => (
+                            <View style={styles.myLeagues} key={league._id}>
+                                <LeagueItem
+                                    handleLeaguePress={handleLeaguePress}
+                                    isExpanded={expandedLeagueIndex === league._id}
+                                    onEdit={onEdit}
+                                    league={league}
+                                    openModal={() => openModal("invite")}
+                                    handleDelete={() => handleDelete(league._id)}
+                                    invitemodalVisible={invitemodalVisible}
+                                    inviteEmails={inviteEmails}
+                                    setInviteEmails={setInviteEmails}
+                                    closeModal={closeModal}
+                                />
+                            </View>
+                        ))
+                    )
+
+                )}
 
                 <View style={styles.buttonWrapper}>
                     <TouchableOpacity style={styles.createButton} onPress={openModal}>
@@ -148,7 +188,7 @@ const Index = () => {
                 </View>
                 <View style={styles.leaderBoardTableHeader}>
                     <View style={styles.leaderBoardTableContent}>
-                        <Text style={styles.tableHeaderText}>Name</Text>
+                        <Text style={styles.tableHeaderText}>Members</Text>
                     </View>
                     <View style={styles.leaderBoardTableContent2}>
                         <Text style={styles.tableHeaderText}>Points</Text>
@@ -158,7 +198,7 @@ const Index = () => {
                 {rankArr?.slice(0, itemsToShow).map((value, index) => (
                     <LeaderboardItem
                         key={index}
-                        imageSource={profileImage}
+                        imageSource={value.userId.profilePhoto ? { uri: value.userId.profilePhoto } : profileImage}
                         name={value.userId.userName}
                         points={value.userId.score}
                         rank={value.rank}
@@ -186,9 +226,8 @@ const styles = StyleSheet.create({
         marginVertical: 15,
         width: "85%",
         backgroundColor: "#454134",
-        borderRadius: 3,
-        padding: 10,
-        borderRadius: 2,
+        borderRadius: 5,
+        padding: 8,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.25,
@@ -197,7 +236,7 @@ const styles = StyleSheet.create({
     },
     scorecardText: {
         fontFamily: "nova",
-        fontSize: 22,
+        fontSize: 18,
         textAlign: "center",
         color: "white",
         textTransform: "uppercase"
@@ -205,8 +244,10 @@ const styles = StyleSheet.create({
     profileContainer: {
         width: "85%",
         padding: 10,
+        paddingTop: 15,
+        paddingRight: 15,
         backgroundColor: "#fff",
-        borderRadius: 2,
+        borderRadius: 3,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.25,
@@ -226,6 +267,7 @@ const styles = StyleSheet.create({
     createButton: {
         backgroundColor: "#ebb04b",
         padding: 10,
+        paddingHorizontal: 20,
         textTransform: "uppercase",
         borderRadius: 2,
         shadowColor: "#000",
@@ -238,7 +280,7 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
         textAlign: 'center',
-        fontSize: 15,
+        fontSize: 14,
         textTransform: "uppercase",
     },
     subHeader: {

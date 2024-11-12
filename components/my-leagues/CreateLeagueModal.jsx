@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Checkbox from 'expo-checkbox';
 import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Pressable } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { createUpdateLeagues, getLeagues } from '../redux/leaguesSlice';
 
@@ -22,7 +22,6 @@ const CreateLeagueModal = ({ visible, onClose, currentLeague, title, setEmails, 
     const handleSubmit = async (actionType) => {
         const userId = await AsyncStorage.getItem('userId');
         const cleanedTitle = title.trim();
-    
         // Split emails, remove whitespace, filter empty strings, and remove duplicates
         const emailArray = [...new Set(emails
             .split(',')
@@ -31,7 +30,7 @@ const CreateLeagueModal = ({ visible, onClose, currentLeague, title, setEmails, 
         )];
     
         if (!cleanedTitle) {
-            alert('Title cannot be empty');
+            Alert.alert("Title",'cannot be empty');
             return;
         }
     
@@ -52,12 +51,8 @@ const CreateLeagueModal = ({ visible, onClose, currentLeague, title, setEmails, 
             .then(() => {
                 dispatch(getLeagues(userId));
             });
-    
         onClose();
     };
-    
-
-
     return (
         <Modal
             transparent={true}
@@ -81,7 +76,7 @@ const CreateLeagueModal = ({ visible, onClose, currentLeague, title, setEmails, 
                         onChangeText={setEmails}
                         multiline
                     />
-                    <View style={styles.checkboxContainer}>
+                    <Pressable style={styles.checkboxContainer} onPress={() => setAllowInvitation(!allowInvitation)}>
                         <Checkbox
                             value={allowInvitation}
                             onValueChange={setAllowInvitation}
@@ -89,7 +84,7 @@ const CreateLeagueModal = ({ visible, onClose, currentLeague, title, setEmails, 
                         <Text style={styles.checkboxLabel}>
                             Allow members to invite friends?
                         </Text>
-                    </View>
+                    </Pressable>
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.submitButton} onPress={() => handleSubmit(currentLeague ? "update" : "create")}>
                             <Text style={styles.buttonText}>{currentLeague ? "Update" : "Submit"}</Text>

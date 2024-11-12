@@ -9,7 +9,6 @@ const initialState = {
 };
 
 
-
 export const createMessages = createAsyncThunk('createMessages', async ({ leagueId, userId, message }) => {
     try {
         const response = await axios.post(

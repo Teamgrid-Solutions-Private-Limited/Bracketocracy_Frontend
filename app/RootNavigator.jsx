@@ -17,7 +17,6 @@ import Bracket from "@/components/the bracket/Index";
 import Message from "@/components/message/Message";
 import History from "@/components/my-leagues/subComponents/HistoryItem";
 const Stack = createNativeStackNavigator();
-
 const RootNavigator = () => {
   const { userToken } = useSelector((state) => state.login);
   const [initialRoute, setInitialRoute] = useState(null);
@@ -26,7 +25,7 @@ const RootNavigator = () => {
     const checkUserToken = async () => {
       const token = await AsyncStorage.getItem('userToken');
       if (token || userToken) {
-        setInitialRoute('splash-screen');
+        setInitialRoute('home');
       } else {
         setInitialRoute('sign-in');
       }
@@ -35,16 +34,14 @@ const RootNavigator = () => {
     checkUserToken();
   }, [userToken]);
 
+  
   if (!initialRoute) {
-    // Return null or a loading indicator while checking the initial route
     return null;
   }
-
   return (
-    <NavigationContainer>
+    <NavigationContainer >
       <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRoute}>
-
-        <Stack.Screen name="splash-screen" component={Splashscreen} />
+        {/* <Stack.Screen name="splash-screen" component={Splashscreen} /> */}
         <Stack.Screen name="sign-in" component={SignIn} />
         <Stack.Screen name="sign-up" component={SignUp} />
         <Stack.Screen name="home" component={Home} />

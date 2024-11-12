@@ -1,35 +1,33 @@
 {
   "expo": {
-    "assetBundlePatterns": [
-      "assets/fonts/*"
-    ],
     "name": "Bracketocracy",
     "slug": "Bracketocracy",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "icon": "./assets/images/Basketball-Icon.png",
+    "scheme": [
+      "bracketocracy",
+      "fb1991459454608166"
+    ],
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
+    "assetBundlePatterns": [
+      "assets/fonts/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.teamgrid.bracketocracy"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/Basketball-Icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.gourab_teamgrid.Bracketocracy"
+      "package": "com.teamgrid.bracketocracy"
     },
     "web": {
+      "favicon": "./assets/images/favicon.png",
       "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "output": "static"
     },
     "plugins": [
       "expo-router",

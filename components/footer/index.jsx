@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View, TouchableOpacity, Linking } from 'react-native';
+import { Image, StyleSheet, Text, View, TouchableOpacity, Linking, Alert } from 'react-native';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getSponsor } from '../redux/sponsorSlice';
@@ -11,23 +11,29 @@ const Footer = () => {
     dispatch(getSponsor());
   }, [dispatch]);
 
-  // Filter sponsors to get the first one with status 'yes'
+  const handlePress = (url) => {
+    if (!/^https?:\/\//i.test(url)) {
+      url = `https://${url}`;
+    }
+    Linking.openURL(url).catch(err => {
+      console.error('Failed to open URL:', err);
+      Alert.alert('Error', 'Failed to open the sponsor link');
+    });
+  };
   const activeSponsor = sponsors.find(sponsor => sponsor.status === 'yes');
-
   return (
     <View style={styles.footerContainer}>
       <Text style={styles.sponsorText}>This year's bracket is sponsored by</Text>
-      {activeSponsor ? (
-        <>
-          <Text style={styles.sponsorText}>{activeSponsor.companyName}</Text>
-          {/* Uncomment and use if you want to display sponsor's logo */}
-          {/* <Image
-            source={{ uri: activeSponsor.logo }}  // Ensure the logo URL is valid and accessible
+      {activeSponsor ? (<>
+        <TouchableOpacity onPress={() => handlePress(activeSponsor.website)} style={{width: "100%"}}>
+          <Image
+            source={{ uri: activeSponsor?.logo }}
             style={styles.sponsorImage}
-          /> */}
+          />
+        </TouchableOpacity>
         </>
       ) : (
-        <Text style={styles.sponsorText}>No active sponsors at the moment</Text>
+        <Text style={styles.sponsorText1}>No active sponsors at the moment</Text>
       )}
     </View>
   );
@@ -39,19 +45,25 @@ const styles = StyleSheet.create({
   footerContainer: {
     backgroundColor: '#fff',
     width: '100%',
-    height: '9%',
+    paddingVertical: 10,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 5,
+    gap: 2
   },
   sponsorText: {
     fontSize: 14,
     textAlign: 'center',
   },
+  sponsorText1: {
+    fontSize: 15,
+    textAlign: 'center',
+    height: 40,
+    paddingTop: 10
+  },
   sponsorImage: {
-    width: 200,
+    width: "100%",
     height: 40,
     resizeMode: 'contain',
   },

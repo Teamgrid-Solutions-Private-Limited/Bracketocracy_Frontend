@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { API_MAIN } from './API';
+import { Alert } from 'react-native';
 
 const initialState = {
     inviteFriendLeagues: [],
@@ -22,10 +23,9 @@ export const createinviteFriendLeagues = createAsyncThunk(
                     }
                 }
             );
-            return response.data; 
+            return Alert.alert("Success",response.data.message); //response.data.message; 
         } catch (error) {
-            
-            return rejectWithValue(error.response?.data || error.message);
+            return Alert.alert("error",error.response?.data.message);
         }
     }
 );

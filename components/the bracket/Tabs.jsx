@@ -1,34 +1,46 @@
-import { StyleSheet, Text, Pressable, View } from "react-native";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchMatchs } from "../redux/matchSlice";
+import { StyleSheet, Text, Pressable, View, LogBox } from "react-native";
+import React, {useState } from "react";
+import { useSelector } from "react-redux";
 import AllMatches from "./AllMatches";
 import CountdownTimer from "./CountDownTimer";
 
+
 const Tabs = () => {
   const [activeTab, setActiveTab] = useState(1);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchMatchs());
-  }, [dispatch]);
-
-  const matches = useSelector((state) =>
-    state?.match?.matches?.info ? state?.match?.matches?.info : []
-  );
-  // console.log(matches, "matches");
-
-  const filteredMatches = matches.filter((val) => {
-    if (activeTab === 1) return val.zone?.slug === "WEST";
-    if (activeTab === 2) return val.zone?.slug === "SOUTH";
-    if (activeTab === 3) return val.zone?.slug === "EAST";
-    if (activeTab === 4) return val.zone?.slug === "MIDWEST";
-    return true;
+  const {matches}= useSelector((state) => state.match);
+  const {countDowns} = useSelector((state) => state.count);
+  const filteredMatches = matches?.filter((val) => {
+    if (val.status === "playing") {
+      return true;
+    }
+    if (val.status === "archived") {
+      return false;
+    }
+    if (val.round?.slug === "playin") {
+      return true;
+    }
+    if( val.round?.slug === "round-5" || val.round?.slug === "round-6") {
+    return true;  
+    }
+    if (activeTab === 1 && val.zone?.slug === "West") {
+      return true;
+    }
+    if (activeTab === 2 && val.zone?.slug === "South") {
+      return true;
+    }
+    if (activeTab === 3 && val.zone?.slug === "East") {
+      return true;
+    }
+    if (activeTab === 4 && val.zone?.slug === "Midwest") {
+      return true;
+    }
+    return false;
   });
+  
 
-  // console.log(filteredMatches);
-
-  if (matches.length > 0) {
+  if (countDowns?.length > 0 && countDowns[0]?.status === 1) {
+  return <CountdownTimer />;
+  } else
     return (
       <View style={styles.mainContainer}>
         <View style={styles.container}>
@@ -57,19 +69,24 @@ const Tabs = () => {
             <Text style={styles.tabText}>MIDWEST</Text>
           </Pressable>
         </View>
-        <AllMatches matches={filteredMatches} allMatches={matches} />
+        {filteredMatches?.length > 0 && countDowns?.length > 0 && countDowns[0]?.status === 0 &&
+          <AllMatches matches={filteredMatches} allMatches={matches} />
+        }
+        {filteredMatches?.length === 0 && countDowns[0]?.status === 0 && <View style={styles.tbaContainer}>
+          <View
+            style={styles.bodyContainer}>
+            <Text style={styles.tbaText}>TBA</Text>
+          </View>
+        </View>}
       </View>
     );
-  } else {
-    return <CountdownTimer />;
-  }
 };
 
 export default Tabs;
 
 const styles = StyleSheet.create({
   mainContainer: {
-    marginTop :15,
+    marginTop: 15,
     flex: 1,
     backgroundColor: "#f2f1ed",
     width: "100%",
@@ -88,9 +105,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 5,
   },
   tab: {
-    // paddingHorizontal: 5,
     paddingVertical: 3,
-    // marginHorizontal: 5,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
     backgroundColor: "#948d7b",
@@ -103,9 +118,7 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     backgroundColor: "#454134",
-    // paddingHorizontal: 5,
     paddingVertical: 3,
-    // marginHorizontal: 6,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
     width: "30%",
@@ -118,5 +131,31 @@ const styles = StyleSheet.create({
   tabText: {
     color: "#fff",
     fontSize: 12,
+  },
+  tbaContainer: {
+    flex: 1,
+    alignItems: "center",
+    marginTop: "6%",
+    maxHeight: "25%"
+  },
+  bodyContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+    borderRadius: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 1,
+    marginBottom: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "90%",
+
+  },
+  tbaText: {
+    fontSize: 60,
+    color: "#ccc",
+    fontWeight: "bold",
   },
 });

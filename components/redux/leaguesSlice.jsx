@@ -1,12 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { API_MAIN } from './API';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 const initialState = {
   leagues: [],
   allUsers: [],
   allUserId: [],
   status: 'idle',
+  leagueStatus: 'idle',
   rankArr: [],
   error: null,
 };
@@ -16,14 +19,17 @@ export const fetchMultipleProfiles = createAsyncThunk(
   'fetchMultipleProfiles',
   async (userIds, { rejectWithValue }) => {
     try {
-      const responses = await Promise.all(
+      const results = await Promise.allSettled(
         userIds.map((userId) =>
-          axios.get(`${API_MAIN}/user/user/viewbyid/${userId}`, {
-            headers: { 'Content-Type': 'application/json' }
-          })
+          axios.get(`${API_MAIN}/user/user/viewbyid/${userId}`, {})
         )
       );
-      return responses.map(response => response.data); 
+
+      // Filter successful results and extract user data
+      const successfulResults = results.filter((result) => result.status === 'fulfilled');
+      const userProfiles = successfulResults.map((result) => result.value.data);
+
+      return userProfiles;
     } catch (error) {
       return rejectWithValue(error.response?.data || 'An error occurred');
     }
@@ -36,7 +42,6 @@ export const fetchAllUsers = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_MAIN}/user/user/view`, {
-        headers: { 'Content-Type': 'application/json' }
       });
       return response.data;
     } catch (error) {
@@ -51,12 +56,9 @@ export const getLeagues = createAsyncThunk(
   async (userId, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${API_MAIN}/league/league/search/${userId}`, {
-        headers: { 'Content-Type': 'application/json' }
       });
-      // console.log("response")
-      return response.data.data;  // Return serializable data
+      return response.data.data;
     } catch (error) {
-      // console.log(error,"error")
       return rejectWithValue(error.response?.data || 'An error occurred');
     }
   }
@@ -65,9 +67,9 @@ export const getLeagues = createAsyncThunk(
 // Get rank array
 export const getRankArr = createAsyncThunk(
   'getRankArr',
-  async (userId, { rejectWithValue }) => {
+  async (seasonId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${API_MAIN}/rank/${"66a33f9a8da54d9197e3dbe6"}`, {
+      const response = await axios.get(`${API_MAIN}/rank/${seasonId}`, {
         headers: { 'Content-Type': 'application/json' }
       });
       return response.data;
@@ -82,13 +84,19 @@ export const createUpdateLeagues = createAsyncThunk(
   'createUpdateLeagues',
   async ({ title, emails, userId, allowInvitation, action, leagueId }, { rejectWithValue }) => {
     try {
-      const formData = { title, emails, userId, allowInvitation };
+      const token = await AsyncStorage.getItem('userToken');
+      const formData = { title, emails, userId, allowInvitation};
       if (action === "update") {
         const response = await axios.put(
           `${API_MAIN}/league/league/update/${leagueId}`,
           formData,
-          { headers: { 'Content-Type': 'application/json' } }
+          { headers: { 'Content-Type': 'application/json' ,
+            'Authorization': `Bearer ${token}`
+          } }
         );
+        if(response.data.message){
+          Alert.alert("Success",response.data.message);
+        }
         return response.data;  
       } else if (action === "create") {
         const response = await axios.post(
@@ -96,10 +104,13 @@ export const createUpdateLeagues = createAsyncThunk(
           formData,
           { headers: { 'Content-Type': 'application/json' } }
         );
+        if(response.data.message){
+          Alert.alert("Success",response.data.message);
+        }
         return response.data;
       }
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'An error occurred');
+      return Alert.alert("error",error.response.data.error);
     }
   }
 );
@@ -114,7 +125,7 @@ export const deleteLeagues = createAsyncThunk(
       });
       return leagueId;  
     } catch (error) {
-      return rejectWithValue(error.response?.data || 'An error occurred');
+      return rejectWithValue(error.response?.data || 'Error Deleting League');
     }
   }
 );
@@ -147,22 +158,22 @@ const Leagueslice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(createUpdateLeagues.fulfilled, (state, action) => {
-        state.status = 'idle';
+        state.leagueStatus = 'idle';
       })
       .addCase(createUpdateLeagues.rejected, (state, action) => {
-        state.status = 'error';
+        state.leagueStatus = 'error';
         state.error = action.payload;
       })
       .addCase(getLeagues.pending, (state) => {
-        state.status = 'loading';
+        state.leagueStatus = 'loading';
       })
       .addCase(getLeagues.fulfilled, (state, action) => {
-        state.status = 'idle';
+        state.leagueStatus = 'idle';
         state.leagues = action.payload;
         state.error = null;
       })
       .addCase(getLeagues.rejected, (state, action) => {
-        state.status = 'error';
+        state.leagueStatus = 'error';
         state.error = action.payload;
       })
       .addCase(fetchAllUsers.pending, (state) => {
@@ -199,11 +210,11 @@ const Leagueslice = createSlice({
         state.error = action.payload;
       })
       .addCase(deleteLeagues.fulfilled, (state, action) => {
-        state.status = 'idle';
+        state.leagueStatus = 'idle';
         state.leagues = state.leagues.filter((league) => league._id !== action.payload);
       })
       .addCase(deleteLeagues.rejected, (state, action) => {
-        state.status = 'error';
+        state.leagueStatus = 'error';
         state.error = action.payload;
       })
       .addCase(deleteLeaguesUser.fulfilled, (state, action) => {

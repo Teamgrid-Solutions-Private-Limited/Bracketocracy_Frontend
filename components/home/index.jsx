@@ -1,13 +1,12 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import React, { useEffect } from 'react';
-import Users from "@/assets/images/user.jpg";
+import Users from "@/assets/images/EmptyProfile.png";
 import { Ionicons, AntDesign, FontAwesome5 } from '@expo/vector-icons';
 import UsersBackground from '@/assets/images/basket-ball.svg';
 import Header from '../header';
 import Footer from '../footer';
 import { fetchEditProfile } from '../redux/editProfileSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const IconBox = ({ title, IconComponent, iconName, iconSize, notificationsCount, onPress }) => (
@@ -31,6 +30,12 @@ const IconBox = ({ title, IconComponent, iconName, iconSize, notificationsCount,
 );
 
 const Home = (props) => {
+    const { editProfile } = useSelector((state) => state.editProfile);
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        dispatch(fetchEditProfile());
+    }, [dispatch]);
    
     const handleNavigateToMenu = () => {
         props.navigation.navigate("menu");
@@ -44,7 +49,7 @@ const Home = (props) => {
         props.navigation.navigate("bracket");
     };
     
-    const notificationsCount = 3;
+    const notificationsCount = 0;
 
     return (
         <View style={styles.main}>
@@ -70,7 +75,7 @@ const Home = (props) => {
                 <View style={styles.middleContentBoxWrapper}>
                     <UsersBackground width={350} height={350} style={styles.background} />
                     <View style={styles.middleContentBox}>
-                        <Image source={Users} style={styles.user} />
+                        <Image source={editProfile?.profilePhoto ? { uri: editProfile?.profilePhoto } : Users} style={styles.user} />
                     </View>
                 </View>
 
@@ -114,7 +119,6 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
     },
     contentWrapper: {
-        // justifyContent: "center",
         alignItems: "center",
         display: "flex",
         flexDirection: "column",
@@ -122,7 +126,7 @@ const styles = StyleSheet.create({
     },
     contentWrapperText: {
         fontFamily: "nova",
-        fontSize: 18
+        fontSize: 16
     },
     middleContentBox: {
         height: 204,

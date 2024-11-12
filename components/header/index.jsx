@@ -5,6 +5,7 @@ import { fetchEditProfile } from "../redux/editProfileSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from "react-redux";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import ProfileImage from "@/assets/images/EmptyProfile.png";
 
 const Header = (props) => {
   const profileData = props.editProfile
@@ -45,7 +46,7 @@ const Header = (props) => {
             <Text style={styles.subtitle}>{editProfile ? editProfile.firstName + " " + editProfile.lastName : profileData?.firstName + " " + profileData?.lastName}</Text>
             <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('edit-profile')}>
               <Image
-                source={require("../../assets/images/userIcon.png")}
+                source={editProfile?.profilePhoto ? { uri: editProfile?.profilePhoto } : ProfileImage}
                 style={styles.profileImage}
               />
             </TouchableOpacity>
@@ -54,7 +55,7 @@ const Header = (props) => {
 
       {!isHomeScreen && (
         <TouchableOpacity style={styles.bottomRow} onPress={() => navigation.navigate('menu')}>
-          <Ionicons name="menu" size={24} color="white" />
+          <Ionicons name="menu" size={30} color="white" />
           <Text style={styles.menuText}>MAIN MENU</Text>
         </TouchableOpacity>
       )}
@@ -133,6 +134,7 @@ const styles = StyleSheet.create({
   profileImage: {
     width: 30,
     height: 30,
+    borderRadius: 15,
   },
   bottomRow: {
     flexDirection: "row",
@@ -144,19 +146,11 @@ const styles = StyleSheet.create({
     borderRadius: 17,
     borderWidth: 3,
     borderColor: "#CE9D3E",
-    paddingVertical: 6,
-    gap: 5
-  },
-  menuButton: {
-    marginRight: 10,
-    padding: 3,
-  },
-  menuImage: {
-    width: 25,
-    height: 20,
+    paddingVertical: 1,
+    gap: 10
   },
   menuText: {
-    fontSize: 18,
+    fontSize: 17,
     // fontWeight: "bold",
     color: "#fff",
 

@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     profileImage: {
         width: 60,
         height: 60,
-        borderRadius: 25,
+        borderRadius: 30,
         marginRight: 10
     },
     profileTextContainer: {
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     profileText: {
-        fontSize: 16,
+        fontSize: 14,
         color: "#ebb04b"
     },
 })

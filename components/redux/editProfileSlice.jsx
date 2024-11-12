@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { API_MAIN } from './API';
+import { Alert } from 'react-native';
  
 const initialState = {
   editProfile: [],
@@ -33,15 +34,16 @@ export const updateEditProfile = createAsyncThunk(
       formData.append('firstName', userData.firstName);
       formData.append('lastName', userData.lastName);
       formData.append('email', userData.email);
-      // if(userData.profilePhoto) {
+      if(userData.profilePhoto) {
         formData.append('profilePhoto', userData.profilePhoto);
-      // }
+      }
+      // console.log(userData.profilePhoto, "profilePhoto")
       const response = await axios.put(`${API_MAIN}/user/user/update/${userData.id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
- 
+      Alert.alert("Success","Profile updated successfully");
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || 'An error occurred while updating profile');

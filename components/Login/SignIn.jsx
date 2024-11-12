@@ -4,6 +4,7 @@ import {
   Image,
   ImageBackground,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -13,6 +14,10 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
+import GoogleLogo from "../../assets/images/google.png";
+import FacebookLogo from "../../assets/images/facebook.png";
+import BracktocracyLogo from "../../assets/images/bracketocracy-dark-logo.png"
+import Background from "../../assets/images/bk-login.jpg";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../redux/loginSlice";
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -20,6 +25,22 @@ import Checkbox from "expo-checkbox";
 import { API_MAIN } from "../redux/API";
 import { fetchAllUsers } from "../redux/leaguesSlice";
 const height = Dimensions.get('window').height
+import { iosClientId, androidClientId, webClientId, facebookClientId } from '../configs'
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import { makeRedirectUri } from 'expo-auth-session';
+import * as Facebook from "expo-auth-session/providers/facebook";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode";
+
+const config={
+  iosClientId: iosClientId,
+  androidClientId: androidClientId,
+  webClientId: webClientId,
+  scopes: ['profile', 'email'],
+}
+WebBrowser.maybeCompleteAuthSession();
+
 const SignIn = ({ navigation }) => {
   const dispatch = useDispatch();
   useEffect(() => {
@@ -47,7 +68,7 @@ const SignIn = ({ navigation }) => {
 
   const handlePasswordChange = (text) => {
     setPassword(text);
-    if (text.length < 5) {
+    if (text.length < 6) {
       setPasswordError("Password must be at least 6 characters long");
     } else {
       setPasswordError("");
@@ -76,10 +97,85 @@ const SignIn = ({ navigation }) => {
     dispatch(loginUser({ email, password, checkbox }))
       .unwrap()
       .then(() => {
-        navigation.navigate("splash-screen");
+        navigation.navigate("home");
       });
   };
 
+
+// for Google Login
+const [googleRequest, googleResponse, googleAsyncLogin] = Google.useAuthRequest({ ...config, redirectUri:
+  Platform.OS === 'android'
+    ? makeRedirectUri({
+        scheme: "com.teamgrid.bracketocracy",
+        path: '/',
+      })
+    : undefined,
+  // scopes: ["openId","profile", "email"],
+});
+const googleLogin = () => {
+  if(googleResponse?.type === 'success'){
+    const { authentication } = googleResponse;
+    const { accessToken }=authentication;
+    fetch(`${API_MAIN}/auth/google/callback`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ accessToken }),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Server error: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.token) {
+          AsyncStorage.setItem("userToken", data.token);
+          const decodedUser = jwtDecode(data.token);
+          if(decodedUser) AsyncStorage.setItem('userId', decodedUser.id);
+          setUser(decodedUser);
+          navigation.navigate('home');
+        } else {
+          console.error("Token not found in response");
+        }
+      })
+      .catch((err) => console.error("Fetch error:", err));
+    
+  }
+}
+
+useEffect(() => {
+  googleLogin()
+},[googleResponse])
+
+// for FaceBook Login
+const [user, setUser] = useState(null);
+const [facebookRequest, facebookResponse, facebookLoginAsync] = Facebook.useAuthRequest({
+  clientId: facebookClientId,
+});
+
+useEffect(() => {
+  if (facebookResponse && facebookResponse.type === "success" && facebookResponse.authentication) {
+    (async () => {
+      const userInfofacebookResponse = await fetch(
+        `https://graph.facebook.com/me?access_token=${facebookResponse.authentication.accessToken}&fields=id,name,picture.type(large)`
+      );
+      const userInfo = await userInfofacebookResponse.json();
+      setUser(userInfo);
+      console.log(JSON.stringify(facebookResponse, null, 2));
+    })();
+  }
+}, [facebookResponse]);
+
+
+const handlePressAsync = async () => {
+  const result = await facebookLoginAsync();
+  if (result.type !== "success") {
+    alert("Uh oh, something went wrong");
+    return;
+  }
+};
 
   return (
     <KeyboardAvoidingView
@@ -88,13 +184,13 @@ const SignIn = ({ navigation }) => {
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <ImageBackground
-          source={require("../../assets/images/bk-login.jpg")}
+          source={Background}
           style={styles.backgroundImage}
 
         >
           <View style={styles.container}>
             <Image
-              source={require("../../assets/images/bracketocracy-dark-logo.png")}
+              source={BracktocracyLogo}
               style={styles.logo}
             />
 
@@ -172,21 +268,20 @@ const SignIn = ({ navigation }) => {
               <Text style={styles.orText}>- Or sign in with -</Text>
 
               <View style={styles.socialContainer}>
-                <TouchableOpacity style={styles.socialButton}>
+                <TouchableOpacity style={styles.socialButton}  onPress={() => handlePressAsync()}>
                   <Image
-                    source={require("../../assets/images/facebook.png")}
+                    source={FacebookLogo}
                     style={styles.img}
                   />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.socialButton}>
+                <TouchableOpacity style={styles.socialButton}  onPress={() => googleAsyncLogin()}>
                   <Image
-                    source={require("../../assets/images/google.png")}
+                    source={GoogleLogo}
                     style={styles.img}
                   />
                 </TouchableOpacity>
               </View>
             </View>
-
           </View>
           <Text style={styles.madnessText}>LET MADNESS REIGN</Text>
         </ImageBackground>

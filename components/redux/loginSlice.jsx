@@ -5,6 +5,7 @@ import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_MAIN } from './API';
 
+
 const initialState = {
   userToken: null,
   userId: null, 
@@ -57,10 +58,27 @@ export const loginUser = createAsyncThunk('loginUser', async ({ email, password 
       }
     }
   } catch (error) {
-    return Alert.alert('Login Error', 'Check username or password');
+    return Alert.alert('Login Error', error);
   }
 });
-
+export const resetPasswordUser = createAsyncThunk(
+  'resetPasswordUser',
+  async ({email}, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${API_MAIN}/email/mail`,
+        {to:email},
+        {
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+      Alert.alert("Success",response.data.message);
+      return response.data;
+    } catch (error) {
+     Alert.alert("error",error.response?.data.message);
+    }
+  }
+);
 const loginSlice = createSlice({
   name: 'login',
   initialState,

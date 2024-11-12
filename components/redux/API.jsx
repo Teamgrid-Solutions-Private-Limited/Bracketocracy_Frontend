@@ -1,1 +1,1 @@
-export const API_MAIN = "http://192.168.1.35:6010"
+export const API_MAIN = "https://v2.bracketocracy.com"

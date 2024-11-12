@@ -3,19 +3,31 @@
     "version": ">= 12.5.0",
     "appVersionSource": "remote"
   },
-  
-    "build": {
-      "development": {},
-      "preview": {},
-      "production": {},
-      "internal": {
-        "ios": {
-          "distribution": "internal",
-          "simulator": false
-        }
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "distribution": "internal"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "distribution": "internal"
+      }
+    },
+    "production": {},
+    "internal": {
+      "distribution": "internal",
+      "ios": {
+        
+        "simulator": false
       }
     }
-,  
+  },
   "submit": {
     "production": {}
   }

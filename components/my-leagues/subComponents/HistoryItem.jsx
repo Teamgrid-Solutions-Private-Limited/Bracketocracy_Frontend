@@ -11,11 +11,7 @@ import { getTeams } from "@/components/redux/teamSlice";
 const HistoryItem = () => {
   const dispatch = useDispatch();
   const [userId, setUserId] = useState(null);
-  const userBets = useSelector((state) =>
-    state.bet.userBets && state.bet.userBets.length > 0
-      ? state.bet.userBets
-      : []
-  );
+  const { userBets } = useSelector((state) => state.bet);
 
   useEffect(() => {
     const getId = async () => {
@@ -37,12 +33,12 @@ const HistoryItem = () => {
     if (userId) {
       dispatch(fetchUserBets({ userId }));
     }
-  }, [userId, dispatch]);
+  }, [userId]);
 
   useEffect(() => {
     dispatch(getRounds());
     dispatch(getTeams());
-  }, [dispatch]);
+  }, []);
 
   const rounds = useSelector((state) =>
     state.round.roundlist ? state?.round?.roundlist : []
@@ -58,7 +54,7 @@ const HistoryItem = () => {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionHeaderText}>MY SELECTIONS</Text>
         </View>
-        {[...userBets].reverse().map((match) => {
+        {[...userBets]?.reverse().map((match) => {
           // Skip rendering if matchId is null or undefined
           if (!match.matchId) {
             console.warn("Missing matchId for match:", match); // Debug log
@@ -66,48 +62,64 @@ const HistoryItem = () => {
           }
 
           // Only render if match has a decided winner
-          if (match.matchId?.decidedWinner) {
-            return (
-              <View key={match._id} style={styles.card}>
-                <View style={styles.cardRow}>
-                  <Text style={styles.label}>MATCHUP</Text>
-                  <Text style={styles.value}>
-                    {teams.find((team) => team._id === match.matchId.teamOneId)?.name || "Unknown"}
-                    <Text style={styles.vsText}> Vs </Text>
-                    {teams.find((team) => team._id === match.matchId.teamTwoId)?.name || "Unknown"}
-                  </Text>
-                </View>
-
-                <View style={styles.cardRow}>
-                  <Text style={styles.label}>ROUND</Text>
-                  <Text style={styles.value}>
-                    {rounds.find((round) => round.slug === match.matchId.roundSlug)?.name || "Unknown"}
-                  </Text>
-                </View>
-
-                <View style={styles.cardRow}>
-                  <Text style={styles.label}>WINNER</Text>
-                  <Text style={styles.value}>
-                    {teams.find((team) => team._id === match.matchId.decidedWinner)?.name || "Unknown"}
-                  </Text>
-                </View>
-
-                <View style={styles.cardRow}>
-                  <Text style={styles.label}>MY PICK</Text>
-                  <Text style={styles.value}>{match.selectedWinner.name}</Text>
-                </View>
-
-                <View style={styles.cardRow}>
-                  <Text style={styles.label}>POINTS EARNED</Text>
-                  <Text style={styles.value}>
-                    {match.matchId.roundSlug == "champion-match" ? match.betScore : match.points}
-                  </Text>
-                </View>
+          // if (match.matchId?.decidedWinner) {
+          return (
+            <View key={match._id} style={styles.card}>
+              <View style={styles.cardRow}>
+                <Text style={styles.label}>MATCHUP</Text>
+                <Text style={styles.value}>
+                  {teams.find((team) => team._id === match.matchId.teamOneId)?.name}
+                  <Text style={styles.vsText}> Vs </Text>
+                  {teams.find((team) => team._id === match.matchId.teamTwoId)?.name}
+                </Text>
               </View>
-            );
-          } else {
-            return null;
-          }
+
+              <View style={styles.cardRow}>
+                <Text style={styles.label}>ROUND</Text>
+                <Text style={styles.value}>
+                  {rounds.find((round) => round.slug === match.matchId.roundSlug)?.name}
+                </Text>
+              </View>
+              {match?.matchId?.zoneSlug && (
+                <View style={styles.cardRow}>
+                  <Text style={styles.label}>REGION</Text>
+                  <Text style={styles.value}>
+                    {match?.matchId?.zoneSlug}
+                  </Text>
+                </View>
+              )}
+              <View style={styles.cardRow}>
+                <Text style={styles.label}>WINNER</Text>
+                <Text style={styles.value}>
+                  {match.matchId?.decidedWinner ? teams.find((team) => team._id === match.matchId.decidedWinner)?.name : "TBA"}
+                </Text>
+              </View>
+
+              <View style={styles.cardRow}>
+                <Text style={styles.label}>MY PICK</Text>
+                <Text style={styles.value}>{match.selectedWinner.name}</Text>
+              </View>
+
+              <View style={styles.cardRow}>
+                <Text style={styles.label}>POINTS EARNED</Text>
+                <Text style={styles.value}>
+                  {match.points}
+                </Text>
+              </View>
+              {match.matchId.roundSlug == "round-6" && (
+                <View style={styles.cardRow}>
+                  <Text style={styles.label}>POINTS DEDUCTED</Text>
+                  <Text style={styles.value}>
+                    {match.matchId.roundSlug == "round-6" && match.betScore}
+                  </Text>
+                </View>
+              )}
+
+            </View>
+          );
+          // } else {
+          //   return null;
+          // }
         })}
       </ScrollView>
       <Footer />

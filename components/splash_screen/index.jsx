@@ -1,15 +1,14 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, ImageBackground, StyleSheet, Text, View, Image } from 'react-native';
+import { Animated, ImageBackground, StyleSheet, View, Image } from 'react-native';
 import Background from "../../assets/images/bk-Splash-screen.jpg";
 import Logo from "@/assets/images/logoLight.png";
+
 
 const Index = (props) => {
     const logoPosition = useRef(new Animated.Value(-100)).current;
     const textScale = useRef(new Animated.Value(0)).current;
     useEffect(() => {
-        setTimeout(() => {
-            props.navigation.replace("home")
-        }, 3000)
+
         Animated.timing(logoPosition, {
             toValue: 0,
             duration: 500,
@@ -21,18 +20,18 @@ const Index = (props) => {
             useNativeDriver: true,
         }).start();
     }, []);
-  
+
     return (
-        <ImageBackground source={Background} style={styles.main}>
-            <View style={styles.container}>
-                <Animated.View style={{ transform: [{ translateY: logoPosition }] }}>
-                    <Image source={Logo} style={styles.logo} />
-                </Animated.View>
-                <Animated.Text style={[styles.madnessText, { transform: [{ scale: textScale }] }]}>
-                    Let madness reign
-                </Animated.Text>
-            </View>
-        </ImageBackground>
+            <ImageBackground source={Background} style={styles.main}>
+                <View style={styles.container}>
+                    <Animated.View style={{ transform: [{ translateY: logoPosition }] }}>
+                        <Image source={Logo} style={styles.logo} />
+                    </Animated.View>
+                    <Animated.Text style={[styles.madnessText, { transform: [{ scale: textScale }] }]}>
+                        Let madness reign
+                    </Animated.Text>
+                </View>
+            </ImageBackground>
     );
 }
 

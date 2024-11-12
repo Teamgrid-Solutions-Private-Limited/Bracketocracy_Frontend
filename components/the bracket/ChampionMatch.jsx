@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import moment from "moment";
 import {
   StyleSheet,
@@ -6,320 +6,193 @@ import {
   Text,
   Image,
   Pressable,
-  TextInput,
 } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchUserBets, placeBet, updateRound } from "../redux/betSlice";
+import {useSelector } from "react-redux";
+import { SvgUri } from "react-native-svg";
+import PlaceBetModal from "./PlaceBetModal";
 
 const ChampionMatch = ({
-  matches,
-  rounds,
+  val,
   teams,
-  getRemainingTime,
-  userId,
+  userBets,
+  disabled,
+  handleTeamSelect,
+  rounds,
+  bet,
+  setBet
 }) => {
-  const [selectedTeams, setSelectedTeams] = useState({});
-  const dispatch = useDispatch();
-  const [bet, setBet] = useState(0);
-  const userBets = useSelector((state) =>
-    state.bet.userBets && state.bet.userBets.length > 0
-      ? state.bet.userBets
-      : []
-  );
-  const [disabled, setDisabled] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [teamId, setTeamId] = useState(null);
+  const [matchId, setMatchId] = useState(null);
+  const { rankArr } = useSelector((state) => state.leagues);
+  const { editProfile } = useSelector((state) => state.editProfile);
+  const userRank = rankArr?.find(rank => rank.userId._id === editProfile?._id);
 
-  const handleTeamSelect = (matchId, teamName) => {
-    // Check if bidding period is over for the specific match
-    rounds.find((round) => {
-      if (round.slug === "round-6") {
-        const { formattedTime, remainingTimeInMs } = getRemainingTime(
-          round.biddingEndDate
-        );
-
-        if (remainingTimeInMs <= 0) {
-          return setDisabled(true);
-        } else return setDisabled(false);
-      }
-    });
-
-    // Find the selected team's ID based on the teamName
-    const selectedTeam = teams.find((team) => team.name === teamName);
-    if (!selectedTeam) {
-      console.log("Team not found.");
-      return;
-    }
-
-    // Update the selected team for the match using the team ID
-    setSelectedTeams((prev) => ({
-      ...prev,
-      [matchId]: selectedTeam._id, // Store the ID instead of name
-    }));
-  };
-
-  console.log(selectedTeams);
-  console.log("userid", userId);
-  
-
-  useEffect(() => {
-    if (userId) {
-      dispatch(fetchUserBets({ userId }));
-    }
-  }, [dispatch, userId]);
-
-  const handlePlaceBet = (matchId) => {
-    if (!disabled && userId && Object.keys(selectedTeams).length > 0) {
-      const seasonId = "66b5e399264761b0e2656168";
-      const status = 0;
-      const selectedWinnerId = selectedTeams[matchId];
-
-      // Check if the user has already placed a bet on this match
-      const matchingBets = userBets.filter(
-        (bet) => bet.matchId._id === matchId
+  const renderLogo = (logoUri,style) => {
+    const isSvg = logoUri?.endsWith(".svg");
+    if (isSvg) {
+      return (
+        <SvgUri uri={logoUri} style={style} width={style.width} height={style.height} resizeMode="contain"/>
+      )
+    } else {
+      return (
+        <Image
+          source={{ uri: logoUri }}
+          style={style}
+          resizeMode="contain"
+        />
       );
+    }
+}
 
-      if (matchingBets.length > 0) {
-        // If there's an existing bet, update it
-        matchingBets.forEach((existingBet) => {
-          if (existingBet._id) {
-            dispatch(
-              updateRound({
-                id: existingBet._id,
-                matchId,
-                userId,
-                selectedWinner: selectedWinnerId,
-                status,
-                seasonId,
-                betScore:bet, // Add the bet amount to updateRound call
-              })
-            )
-              .unwrap()
-              .then(() => {
-                dispatch(fetchUserBets({ userId }));
-              })
-              .catch((error) => {
-                console.error("Failed to update round:", error);
-              });
-          }
-        });
-      } else {
-        dispatch(
-          placeBet({
-            matchId,
-            userId,
-            selectedWinner: selectedWinnerId,
-            status,
-            seasonId,
-            betScore:bet, 
-          })
-        )
-          .unwrap()
-          .then(() => {
-            dispatch(fetchUserBets({ userId }));
-          })
-          .catch((error) => {
-            console.error("Failed to place bet:", error);
-          });
+  const openModal = () => {
+    setShowModal(true);
+  }
+  const closeModal = () => {
+    setShowModal(false);
+    setBet(0);
+  }
+
+  const handleSelect = (matchId, teamId, betValue) => {
+    if (betValue <= 0 || betValue > userRank?.userId.score) {
+      alert("Bet must be between zero and user points");
+      return
+    }
+    else {
+      setMatchId(matchId);
+      setTeamId(teamId);
+      openModal();
+      if (matchId && teamId && betValue) {
+        handleTeamSelect(matchId, teamId, betValue);
       }
 
-      setSelectedTeams({});
     }
+
   };
+  return (<>
+    <View style={styles.outerContainer} >
+      <View style={styles.header}>
+        <Text style={styles.title}>Champion Match</Text>
+      </View>
+      <View style={styles.dateContainer}>
+        <Text style={styles.date}>
+          {moment(rounds.playDate).format("MMMM DD")}
+        </Text>
+      </View>
 
-  if (matches.length > 0) {
-    const championMatchRound = matches.find(
-      (matches) => matches?.round?.slug === "round-6"
-    );
-
-    if (!championMatchRound) return null;
-
-  return (
-    matches.length > 0 && (
-      <View style={styles.outerContainer}>
-        <View style={styles.container}>
-          {rounds.map(
-            (round) =>
-              round.slug === "round-6" && (
-                <View style={styles.header} key={round._id}>
-                  <Text style={styles.title}>{round.name}</Text>
-                  <Text style={styles.date}>
-                    {moment(round.playDate).format("DD MMMM")}
-                  </Text>
-                </View>
+      {/* Match Container */}
+      <View style={styles.matchContainer}>
+        {/* Team 1 */}
+        <Pressable
+          onPress={() => handleSelect(val._id, val.teamOne._id)}
+          disabled={disabled}
+        >
+          <View
+            style={
+              userBets.some(
+                (bet) =>
+                  bet.selectedWinner._id === val.teamOne._id &&
+                  bet.matchId._id === val._id
               )
-          )}
+                ? styles.SeletedTeamContainer
+                : styles.teamContainer
+            }
+          >
+            {renderLogo(val.teamOne.logo, styles.logo)}
+            <Text
+              style={
+                val.teamOneScore > val.teamTwoScore
+                  ? styles.selectTeam
+                  : styles.teamName
+              }
+            >
+              {val.teamOne.name}
+            </Text>
 
-          {matches.map(
-            (match, index) =>
-              match?.round?.slug === "round-6" && (
-                <View style={styles.matchContainer} key={index}>
-                  <View style={styles.scoreboard}>
-                    {/* Team 1 */}
-                    <Pressable
-                      onPress={() =>
-                        handleTeamSelect(match._id, match.teamOne.name)
-                      }
-                      disabled={disabled}
-                    >
-                      <View
-                        style={
-                          userBets.some(
-                            (bet) =>
-                              bet.selectedWinner._id === match.teamOne._id &&
-                              bet.matchId._id === match._id
-                          )
-                            ? styles.SeletedTeamContainer
-                            : styles.teamContainer
-                        }
-                      >
-                        <Image
-                          source={{ uri: match.teamOne.logo }}
-                          style={styles.logo}
-                        />
-                        <Text style={styles.teamName}>
-                          {match.teamOne.name}
-                        </Text>
-                        <Text style={styles.teamScore}>
-                          {match.teamOneScore}
-                        </Text>
-                      </View>
-                    </Pressable>
+          </View>
+        </Pressable>
 
-                    {/* Score Divider */}
-                    <View style={styles.scoreDivider}>
-                      <Text style={styles.score}>
-                        {
-                          teams.find((team) => team.name === match.teamOne.name)
-                            ?.seed
-                        }
-                      </Text>
-                      <Text style={styles.scoreDividerText}>VS</Text>
-                      <Text style={styles.score}>
-                        {
-                          teams.find((team) => team.name === match.teamTwo.name)
-                            ?.seed
-                        }
-                      </Text>
-                    </View>
+        {/* Score Divider */}
+        <View style={{ alignSelf: "flex-end", paddingVertical: 10 }}>
+          <View style={styles.scoreDivider}>
+            <View style={{ alignItems: "center" }}>
+              <Text style={styles.teamScore}>{val.teamOneScore}</Text>
+              <Text style={styles.score}>
+                {teams.find((team) => team._id === val.teamOne._id)?.seed}
+              </Text>
 
-                    {/* Team 2 */}
-                    <Pressable
-                      onPress={() =>
-                        handleTeamSelect(match._id, match.teamTwo.name)
-                      }
-                      disabled={disabled}
-                    >
-                      <View
-                        style={
-                          userBets.some(
-                            (bet) =>
-                              bet.selectedWinner._id === match.teamTwo._id &&
-                              bet.matchId._id === match._id
-                          )
-                            ? styles.SeletedTeamContainer
-                            : styles.teamContainer
-                        }
-                      >
-                        <Image
-                          source={{ uri: match.teamTwo.logo }}
-                          style={styles.logo}
-                        />
-                        <Text style={styles.teamName}>
-                          {match.teamTwo.name}
-                        </Text>
-                        <Text style={styles.teamScore}>
-                          {match.teamTwoScore}
-                        </Text>
-                      </View>
-                    </Pressable>
-                  </View>
+            </View>
+            <View style={{ alignItems: "center" }}><Text style={styles.teamScore}>{val.teamTwoScore}</Text>
+              <Text style={styles.score}>
+                {teams.find((team) => team._id === val.teamTwo._id)?.seed}
+              </Text>
+            </View>
 
-                  {/* Bet Input Section */}
-                  {(match.teamTwoScore === 0 || match.teamOneScore === 0) && (
-                    <View style={styles.setbet}>
-                      <TextInput
-                        style={styles.input}
-                        value={String(bet)}
-                        keyboardType="numeric"
-                        onChangeText={(value) => setBet(Number(value))}
-                      />
-                      <Pressable
-                        style={styles.button}
-                        onPress={() => handlePlaceBet(match._id)}
-                        disabled={disabled}
-                      >
-                        <Text style={styles.buttonText}>PLACE YOUR BET</Text>
-                      </Pressable>
-                    </View>
-                  )}
-                </View>
-              )
-          )}
+          </View>
         </View>
 
-            {matches.map((winer) => {
-          if (
-            winer.teamTwoScore !== winer.teamOneScore ||
-            winer.teamTwoScore > winer.teamOneScore ||
-            winer.teamTwoScore < winer.teamOneScore
-          ) {
-            if (winer?.round?.slug === "round-6") {
-              return <View style={styles.separator}></View>;
-            }
-          }
-          return null
-        })}
 
-        {/* Display Champion */}
-        {matches.map(
-          (match, index) =>
-          {  if (match?.round?.slug === "round-6" &&
-            match.teamOneScore !== match.teamTwoScore) {
-            return <View style={styles.championContainer} key={index}>
-            <Text style={styles.championText}>Champion</Text>
-            <Image
-              source={{
-                uri:
-                  match.teamOneScore > match.teamTwoScore
-                    ? match.teamOne.logo
-                    : match.teamTwo.logo,
-              }}
-              style={styles.championLogo}
-            />
-            <Text style={styles.championTeamName}>
-              {match.teamOneScore > match.teamTwoScore
-                ? match.teamOne.name
-                : match.teamTwo.name}
+        {/* Team 2 */}
+        <Pressable
+          onPress={() => handleSelect(val._id, val.teamTwo._id)}
+          disabled={disabled}
+        >
+          <View
+            style={
+              userBets.some(
+                (bet) =>
+                  bet.selectedWinner._id === val.teamTwo._id &&
+                  bet.matchId._id === val._id
+              )
+                ? styles.SeletedTeamContainer
+                : styles.teamContainer
+            }
+          >
+            {renderLogo(val.teamTwo.logo, styles.logo)}
+            <Text
+              style={
+                val.teamTwoScore > val.teamOneScore
+                  ? styles.selectTeam
+                  : styles.teamName
+              }
+            >
+              {val.teamTwo.name}
             </Text>
           </View>
-          }
-          return null
-        }
-          
-        )}
+        </Pressable>
       </View>
-    )
+      <PlaceBetModal
+        bet={bet}
+        setBet={setBet}
+        showModal={showModal}
+        closeModal={closeModal}
+        handleSelect={handleSelect}
+        matchId={matchId}
+        teamId={teamId}
+        disabled={disabled}
+      />
+    </View>
+    {
+      val.decidedWinner && <View style={{ width: "100%", alignItems: "center" }}>
+        <View style={styles.separator}></View>
+        <View style={styles.winnerContainer}>
+          <Text style={styles.title}>Champion</Text>
+          {renderLogo(val.decidedWinner === val.teamOne._id ? val.teamOne.logo : val.teamTwo.logo, styles.winnerLogo)}
+          <Text style={styles.winnerText}>{val.decidedWinner === val.teamOne._id ? val.teamOne.name : val.teamTwo.name}</Text>
+        </View>
+      </View>
+    }
+  </>
+
+
   );
-}
 };
 
 export default ChampionMatch;
 
 const styles = StyleSheet.create({
-  scrollView: {
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 20,
-    paddingHorizontal: 10,
-    backgroundColor: "#f2f1ed",
-  },
   outerContainer: {
-    flex: 1,
-    alignItems: "center",
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  container: {
-    flex: 1,
+    marginTop: 10,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
@@ -330,56 +203,51 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 1,
-    width: "96%",
+    flexDirection: "column",
+    gap: 10
+  },
+  winnerContainer: {
+    padding: 20,
+    paddingHorizontal: 50,
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 1,
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 10
   },
   header: {
     alignItems: "center",
-    marginBottom: 20,
   },
   title: {
-    fontSize: 22,
-    fontWeight: "bold",
+    fontSize: 20,
     color: "#333",
   },
   date: {
     fontSize: 16,
     color: "#666",
   },
-  scoreboard: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 20,
-    width: "100%",
-    marginBottom: 10,
-  },
-  team: {
-    alignItems: "center",
-  },
   logo: {
-    width: 50,
+    width: 80,
     height: 50,
-    marginBottom: 10,
   },
   teamName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
+    fontSize: 15,
+    color: "#000",
     marginTop: 5,
   },
   teamScore: {
     fontSize: 22,
-    fontWeight: "bold",
     color: "#333",
   },
   scoreDivider: {
     alignItems: "center",
-    justifyContent: "center",
-  },
-  score: {
-    fontSize: 25,
-    fontWeight: "bold",
-    color: "#333",
+    gap: 30,
+    flexDirection: "row",
   },
   scoreDividerText: {
     fontSize: 16,
@@ -409,40 +277,32 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   matchContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    padding: 10,
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
   },
   teamContainer: {
     alignItems: "center",
-    padding:5,
+    flexDirection: "column",
+    gap: 5,
+    padding: 5,
     paddingHorizontal: 10,
   },
   SeletedTeamContainer: {
     backgroundColor: "#ebb04b",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 5,
     padding: 5,
-    alignItems: "center",
     paddingHorizontal: 10,
-  },
-  teamDetails: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  teamLogo: {
-    marginBottom: 8,
-    width: 50,
-    height: 50,
-  },
-  selectTeam: {
-    color: "#000",
-    fontSize: 17,
-    fontWeight: "400",
-    textAlign: "center",
-    fontWeight: "800",
-  },
-  scoreContainer: {
-    alignItems: "center",
-    justifyContent: "center",
   },
   score: {
     fontSize: 12,
@@ -453,15 +313,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
   },
-  selectScore: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#4d4c47",
-  },
   separator: {
     width: 1,
     backgroundColor: "#888",
-    height: 20,
+    height: 50,
   },
   championContainer: {
     alignItems: "center",
@@ -474,7 +329,7 @@ const styles = StyleSheet.create({
     elevation: 1,
     padding: 10,
     paddingHorizontal: 55,
-    marginBottom:5
+    marginBottom: 5,
   },
   championText: {
     fontSize: 18,
@@ -497,5 +352,37 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  setbetButton: {
+    backgroundColor: "#D6A247",
+    borderRadius: 3,
+    padding: 10,
+  },
+  setbetButtonText: {
+    fontSize: 18,
+    color: "white",
+    textAlign: "center",
+  },
+  bodyContainer: {
+    flex: 1,
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    borderRadius: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 1,
+    height: 100,
+  },
+  tbaText: {
+    fontSize: 60,
+    color: "#ccc",
+    fontWeight: "bold",
+    paddingHorizontal: 115,
+  },
+  winnerLogo: {
+    width:80,
+    height: 80,
   },
 });

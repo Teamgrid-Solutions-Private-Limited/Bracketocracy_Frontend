@@ -1,27 +1,31 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { API_MAIN } from "./API";
+import axios from "axios";
 
+
+const initialState = {
+  countDowns: [],
+  isLoader: false,
+  isError: false,
+  errorMessage: "",
+};
 // GET: Fetch all countdowns
 export const fetchCountdowns = createAsyncThunk(
   "countdown/fetchCountdowns",
   async () => {
-    const res = await fetch(`${API_MAIN}/countdown/countdown/show`);
-    if (!res.ok) {
-      throw new Error("Failed to fetch countdowns");
+    try{
+      const res = await axios.get(`${API_MAIN}/countdown/countdown/show`);
+      return res.data.info;
     }
-    const countdowns = await res.json();
-    return countdowns;
+    catch (error) {
+      throw error;
+    }
   }
 );
 
 const countdownSlice = createSlice({
   name: "countdown",
-  initialState: {
-    countdowns: [],
-    isLoader: false,
-    isError: false,
-    errorMessage: "",
-  },
+  initialState,
   extraReducers: (builder) => {
     builder
       .addCase(fetchCountdowns.pending, (state) => {
@@ -29,7 +33,7 @@ const countdownSlice = createSlice({
       })
       .addCase(fetchCountdowns.fulfilled, (state, action) => {
         state.isLoader = false;
-        state.countdowns = action.payload;
+        state.countDowns = action.payload;
         state.isError = false;
         state.errorMessage = "";
       })

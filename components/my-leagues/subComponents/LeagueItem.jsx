@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getLeaguesInMessage } from '@/components/redux/messageSlice';
 import MemberItem from './MemberItem';
 import Checkbox from "expo-checkbox";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { deleteLeaguesUser, getLeagues } from "@/components/redux/leaguesSlice";
-const LeagueItem = ({ isExpanded, onClick, onEdit, league, openModal, handleDelete }) => {
+import { deleteLeaguesUser, fetchMultipleProfiles, getLeagues } from "@/components/redux/leaguesSlice";
+import InviteFriendModal from "../InviteFriendModal";
+const LeagueItem = ({ onEdit, league, isExpanded, openModal, handleDelete, invitemodalVisible, inviteEmails, setInviteEmails, closeModal, handleLeaguePress }) => {
     const navigation = useNavigation();
-    const [userMain, setUserMain] = useState(null);
+    const [userMain, setUserMain] = useState("");
     const dispatch = useDispatch();
-    const handleLeagueTitleClick = (league) => {
+    const handleLeagueTitleClick = (clickedLeague) => {
         navigation.navigate("message")
-        dispatch(getLeaguesInMessage(league))
+        dispatch(getLeaguesInMessage(clickedLeague))
     }
     useEffect(() => {
         const fetchUserData = async () => {
@@ -29,7 +30,7 @@ const LeagueItem = ({ isExpanded, onClick, onEdit, league, openModal, handleDele
             }
         };
         fetchUserData();
-    }, [dispatch])
+    }, [])
 
 
     const handleDeleteMembers = (userId) => {
@@ -42,9 +43,9 @@ const LeagueItem = ({ isExpanded, onClick, onEdit, league, openModal, handleDele
         <View style={styles.leagueItem} >
             <View style={styles.leagueTextContainer}>
                 <Text style={styles.leagueName} onPress={() => handleLeagueTitleClick(league)}>{league.title}</Text>
-                {league.userId[0] === userMain && <FontAwesome6 name="edit" size={20} color="red" onPress={() => onEdit(league)} />}
+                {league.userId[0] === userMain && <FontAwesome6 name="edit" size={20} color="red" opacity={0.6} onPress={() => onEdit(league)} />}
             </View>
-            <AntDesign name={isExpanded ? "upcircle" : "downcircle"} size={20} onPress={onClick} color="#ebb04b" />
+            <AntDesign name={isExpanded ? "upcircle" : "downcircle"} size={20} onPress={() => handleLeaguePress(league._id)} color="#ebb04b" />
         </View>
         {isExpanded && (<>
             <View style={styles.memberContainer}>
@@ -53,12 +54,16 @@ const LeagueItem = ({ isExpanded, onClick, onEdit, league, openModal, handleDele
                     <Text style={styles.memberHeaderText}>Points</Text>
                 </View>
             </View>
-            {league.userId?.length > 0 && (
-                <MemberItem userIds={league.userId} league={league} />
-            )}
+            {/* {league.userId?.length > 0 && ( */}
+            {/* {profiles?.map((profile) => ( */}
+                <MemberItem userIds={league.userId} league={league} handleDeleteMembers={handleDeleteMembers} userMain={userMain}  />
+            {/* ))} */}
+
+            {/* )} */}
             <View style={styles.chckboxContainer}>
                 <Checkbox
                     value={league.allowInvitation}
+
                 />
                 <Text style={styles.checkboxLabel}>Allow members to invite friends?</Text>
             </View>
@@ -85,6 +90,7 @@ const LeagueItem = ({ isExpanded, onClick, onEdit, league, openModal, handleDele
                 )}
 
             </View>
+            <InviteFriendModal visible={invitemodalVisible} onClose={() => closeModal("invite")} emails={inviteEmails} setEmails={setInviteEmails} league={league._id} />
         </>)}
     </>
     )
@@ -105,7 +111,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         paddingLeft: 15,
-        paddingVertical: 15,
+        paddingTop: 15,
     },
     leagueTextContainer: {
         display: "flex",
@@ -123,7 +129,7 @@ const styles = StyleSheet.create({
     },
     leagueItem: {
         width: "100%",
-        height:"auto",
+        height: "auto",
         display: "flex",
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -136,14 +142,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         padding: 15,
-        gap: 10
+        paddingHorizontal:10,
+        gap: 15
     }
     , submitButton: {
         flex: 1,
         backgroundColor: '#ebb04b',
         paddingVertical: 12,
-        paddingHorizontal: 10,
-        borderRadius: 5,
+        paddingHorizontal: 15,
+        borderRadius: 3,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -152,8 +159,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'red',
         paddingVertical: 12,
-        paddingHorizontal: 10,
-        borderRadius: 5,
+        paddingHorizontal: 15,
+        borderRadius: 3,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -164,12 +171,13 @@ const styles = StyleSheet.create({
         gap: 5,
         paddingHorizontal: 15,
         paddingVertical: 5,
+        marginTop: 20
     },
     buttonText: {
         color: 'white',
         fontWeight: 'bold',
         textAlign: 'center',
-        fontSize: 15,
+        fontSize: 14,
         textTransform: "uppercase",
     },
 })

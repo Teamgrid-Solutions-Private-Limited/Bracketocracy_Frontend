@@ -1,29 +1,47 @@
 import { StyleSheet, Text, View, Modal, TextInput, TouchableOpacity } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { createinviteFriendLeagues } from '../redux/invitationSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLeagues } from '../redux/leaguesSlice';
 
 const InviteFriendModal = ({ visible, onClose, emails, setEmails, league }) => {
+
     const dispatch = useDispatch();
+    const leagues = useSelector((state) => state.leagues.leagues);
+    const [userMain, setUserMain] = useState(null);
+
     useEffect(() => {
-        const userId = AsyncStorage.getItem('userId');
-        dispatch(getLeagues(userId));
-    },[])
-    const {leagues}=useSelector(state=>state.leagues)
-   
+        const fetchUserData = async () => {
+            try {
+                const storedUserId = await AsyncStorage.getItem('userId');
+                if (storedUserId) {
+                    setUserMain(storedUserId);
+                }
+            } catch (error) {
+                console.error('Failed to fetch user ID:', error);
+            }
+        };
+        fetchUserData();
+    }, [])
+
     const handleSubmit = async () => {
-        const filteredLeagues =leagues.filter((item)=>item._id===league)
-        const filtertedEmail=filteredLeagues.filter((item)=>item.emails.map(email=>email).includes(emails))
-        if(filtertedEmail.length>0){
+        if (!emails) {
+            alert('Email cannot be empty')
+            return
+        }
+        const filteredLeagues = leagues.filter((item) => item._id === league)
+        const filtertedEmail = filteredLeagues.filter((item) => item.emails.map(email => email).includes(emails))
+        if (filtertedEmail.length > 0) {
             alert('Email already exist in league, Try different email')
             return
         }
-        const userId = await AsyncStorage.getItem('userId');
-        dispatch(createinviteFriendLeagues({ league, emails })).unwrap().then(() => { dispatch(getLeagues(userId)) });
+        await dispatch(createinviteFriendLeagues({ league, emails })).unwrap().then(() => {
+            dispatch(getLeagues(userMain));
+        })
         onClose();
     }
+
     return (
         <Modal
             transparent={true}
@@ -34,7 +52,6 @@ const InviteFriendModal = ({ visible, onClose, emails, setEmails, league }) => {
             <View style={styles.modalOverlay}>
                 <View style={styles.modalContainer}>
                     <Text style={styles.modalTitle}>Invite Friends</Text>
-
                     <TextInput
                         style={[styles.input, styles.membersInput]}
                         placeholder="Email"

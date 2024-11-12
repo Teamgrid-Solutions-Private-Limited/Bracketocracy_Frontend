@@ -1,5 +1,8 @@
 import {
+  Alert,
+  Dimensions,
     Image,
+    ImageBackground,
     Linking,
     StyleSheet,
     Text,
@@ -10,23 +13,33 @@ import {
   } from "react-native";
   import React, { useState } from "react";
   import { useDispatch } from "react-redux";
-  import { loginUser } from "../redux/loginSlice";
+  import {  resetPasswordUser } from "../redux/loginSlice";
   import AntDesign from '@expo/vector-icons/AntDesign';
-  import Checkbox from "expo-checkbox";
-  import { API_MAIN } from "../redux/API";
+  const height=Dimensions.get('window').height
   
   const ForgetPassword = ({ navigation }) => {
     const dispatch = useDispatch();
     const [email, setEmail] = useState('');
    
   
-    const handleSignIn = async () => {
-      await dispatch(loginUser({ email, password, checkbox })).unwrap().then(() => {
-        navigation.navigate('splash-screen');
-      })
+    const handleResetPassword = async () => {
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if(!emailPattern.test(email)) {
+        Alert.alert("Error", 'Invalid email address')
+        return
+      }
+      if (!email) {
+        Alert.alert('Email cannot be empty')
+        return
+      }
+        await dispatch(resetPasswordUser({ email })).unwrap();
     };
     
     return (
+      <ImageBackground
+      source={require("../../assets/images/bk-login.jpg")}
+      style={styles.backgroundImage}
+    >
       <View style={styles.container}>
         <Image source={require('../../assets/images/bracketocracy-dark-logo.png')} style={styles.logo} />
         <View style={styles.formContainer}>
@@ -44,7 +57,7 @@ import {
             <Text style={styles.resetText}>Fill the form to reset your password</Text>
             
           </View>
-          <TouchableOpacity style={styles.signInButton} onPress={handleSignIn}>
+          <TouchableOpacity style={styles.signInButton} onPress={handleResetPassword}>
             <Text style={styles.signInButtonText}>SEND RESET LINK</Text>
           </TouchableOpacity>
          
@@ -54,6 +67,7 @@ import {
           </TouchableOpacity>
         </View>
       </View>
+      </ImageBackground>
     );
   };
   
@@ -64,8 +78,13 @@ import {
       flex: 1,
       width: "100%",
       height: "auto",
-      backgroundColor: "#f2f1ed",
       paddingHorizontal: 25,
+    },
+    backgroundImage: {
+      flex: 1,
+      width: "100%",
+      height: height,
+      resizeMode: 'fit',
     },
     logo: {
       width: '70%',

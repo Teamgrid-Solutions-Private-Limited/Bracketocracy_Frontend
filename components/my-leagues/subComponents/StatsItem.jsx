@@ -11,7 +11,7 @@ const StatsItem = ({ label, value, isButton }) => {
         {isButton ? (
             <TouchableOpacity style={styles.selectionHistoryButton} onPress={() => { navigation.navigate("history")}}>
                 <Text style={styles.statsValue}>History</Text>
-                <FontAwesome name="angle-right" size={24} color="#ebb04b" />
+                <FontAwesome name="angle-right" size={20} color="#ebb04b" />
             </TouchableOpacity>
         ) : (
             <Text style={styles.statsValue}>{value}</Text>
@@ -32,17 +32,17 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 5
+        gap: 20
     },
     statsText: {
         fontFamily: "nova",
         fontSize: 14,
         color: "#ebb04b",
-        textTransform: "uppercase",
+        // textTransform: "uppercase",
     },
     statsValue: {
         fontFamily: "nova",
         fontSize: 16,
-        textTransform: "uppercase"
+        // textTransform: "uppercase"
     },
 })

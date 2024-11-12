@@ -71,18 +71,23 @@ const styles = StyleSheet.create({
         backgroundColor: "#f2f1ed",
     },
     mainHeader: {
-        marginVertical: 20,
+        marginVertical: 15,
         width: "85%",
         backgroundColor: "#454134",
         borderRadius: 5,
-        padding: 10,
+        padding: 8,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 1,
     },
     headerText: {
         fontFamily: "nova",
-        fontSize: 25,
+        fontSize: 18,
         textAlign: "center",
         color: "white",
-        textTransform: "uppercase",
+        textTransform: "uppercase"
     },
     content: {
         flex: 1,

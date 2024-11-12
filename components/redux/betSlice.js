@@ -17,17 +17,32 @@ export const placeBet = createAsyncThunk(
           betScore
         }
       );
-      console.log(response.data);
-      
       return response.data;
     } catch (error) {
-      console.error("Error response:", error.response?.data);
       return thunkAPI.rejectWithValue(
         error.response?.data || { message: "Unknown error occurred." }
       );
     }
   }
 );
+
+// export const fetchUserBets = createAsyncThunk(
+//   "bet/fetchUserBets",
+//   async ({ userId }, thunkAPI) => {
+//     try {
+//       const response = await axios.get(
+//         `${API_MAIN}/bet/bet/user-bets/${userId}`
+//       );
+//       console.log(response, "response");
+//       return response.data;
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(
+//         error.response?.data || { message: "Unknown error occurred." }
+//       );
+//     }
+//   }
+// );
+
 
 export const fetchUserBets = createAsyncThunk(
   "bet/fetchUserBets",
@@ -36,15 +51,30 @@ export const fetchUserBets = createAsyncThunk(
       const response = await axios.get(
         `${API_MAIN}/bet/bet/user-bets/${userId}`
       );
-      return response.data;
+      if (response?.data ) {
+        const validBets = response.data?.filter((bet) => bet.matchId !== null);
+        if (validBets.length > 0) {
+          return validBets;
+        } else {
+          return thunkAPI.rejectWithValue(
+            "No valid bets with a non-null matchId found."
+          );
+        }
+      } else {
+        // return thunkAPI.rejectWithValue(
+        //   response.data?.message || "Invalid response structure."
+        // );
+      }
     } catch (error) {
-      console.error("Error fetching user bets:", error.response?.data);
-      return thunkAPI.rejectWithValue(
-        error.response?.data || { message: "Unknown error occurred." }
-      );
+      console.error("Error fetching user bets:", error);
+      // return thunkAPI.rejectWithValue(
+      //   error.response?.data || { message: "Unknown error occurred." }
+      // );
     }
   }
 );
+
+
 
 export const updateRound = createAsyncThunk(
   "bet/updateRound",
@@ -57,9 +87,8 @@ export const updateRound = createAsyncThunk(
         `${API_MAIN}/bet/bet/update/${id}`,
         { matchId, userId, selectedWinner, status, seasonId, betScore }
       );
-      return response.data;
+      return response.data.info;
     } catch (error) {
-      console.error("Error updating round:", error.response?.data);
       return thunkAPI.rejectWithValue(
         error.response?.data || { message: "Unknown error occurred." }
       );
@@ -83,10 +112,7 @@ const betSlice = createSlice({
         state.error = null;
       })
       .addCase(placeBet.fulfilled, (state, action) => {
-        console.log(action.payload);
-        
-        state.loading = false;
-        state.userBets = action.payload; // Assuming new bets are appended
+        // state.loading = false;
       })
       .addCase(placeBet.rejected, (state, action) => {
         state.loading = false;
@@ -99,7 +125,7 @@ const betSlice = createSlice({
       })
       .addCase(fetchUserBets.fulfilled, (state, action) => {
         state.loading = false;
-        state.userBets = action.payload; // Set the fetched bets
+        state.userBets = action.payload; 
       })
       .addCase(fetchUserBets.rejected, (state, action) => {
         state.loading = false;
@@ -112,23 +138,8 @@ const betSlice = createSlice({
       })
       // Inside your betSlice
       .addCase(updateRound.fulfilled, (state, action) => {
-        state.loading = false;
-        const index = state.userBets.findIndex(
-          (bet) => bet._id === action.payload._id
-        );
-        if (index !== -1) {
-          // Update the existing bet with the new data
-          state.userBets[index] = {
-            ...state.userBets[index],
-            ...action.payload,
-          };
-        } else {
-          // Optional: Add the updated bet if it does not exist
-          state.userBets=action.payload;
-        }
-        // console.log("Update successful, payload:", action.payload);
+        // state.loading = false;
       })
-
       .addCase(updateRound.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;

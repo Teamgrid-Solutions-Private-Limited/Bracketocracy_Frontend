@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, TextInput, Pressable, ActivityIndicator,Alert } from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView, TextInput, Pressable, ActivityIndicator, Alert } from "react-native";
 import profile from "../../assets/images/profile.png";
-import user from "../../assets/images/userIcon.png"; 
+import user from "../../assets/images/userIcon.png";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useDispatch, useSelector } from "react-redux";
 import { createMessages, getMessages } from "../redux/messageSlice";
@@ -10,7 +10,8 @@ import Header from "../header";
 import Footer from "../footer";
 import { fetchMultipleProfiles } from "../redux/leaguesSlice";
 import { formatDistanceToNow } from "date-fns";
-
+import Loader from "../loader/Loader";
+import TransparentLoader from "../loader/TransparentLoader";
 const MessageItems = ({ items, profiles }) => {
   const profileData = useMemo(() => profiles.find((p) => p._id === items.userId[0]), [items?.userId, profiles]);
 
@@ -24,23 +25,23 @@ const MessageItems = ({ items, profiles }) => {
 
 const Message = () => {
   const { leagesInMessege } = useSelector((state) => state.message);
-  const { Messages } = useSelector((state) => state.message);
+  const { Messages, status } = useSelector((state) => state.message);
   const { allUserId } = useSelector((state) => state.leagues);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true); // Combined loading state
   const dispatch = useDispatch();
 
-  
+
 
   const handleSendMessage = async () => {
     const trimmedMessage = message.trim(); // Trim both ends of the message
-  
+
     if (!trimmedMessage) {
       // If the message is empty, show an alert
       Alert.alert("Error", "Message cannot be empty");
       return;
     }
-  
+
     const userId = await AsyncStorage.getItem("userId");
     const leagueId = leagesInMessege._id;
     dispatch(createMessages({ leagueId, userId, message: trimmedMessage })) // Use the trimmed message
@@ -48,7 +49,7 @@ const Message = () => {
       .then(() => dispatch(getMessages(leagesInMessege._id)));
     setMessage(""); // Clear the input field after sending
   };
-  
+
 
   // Fetch messages and profiles when league changes
   useEffect(() => {
@@ -67,10 +68,9 @@ const Message = () => {
     // Display a loader when fetching data
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        
+        <Loader size={50} />
       </View>
-    );
+    )
   }
 
   return (
@@ -124,7 +124,7 @@ const Message = () => {
             </ScrollView>
             <View style={styles.commentSection}>
               <TextInput
-                placeholder="Add a comment"
+                placeholder="Send a message..."
                 style={styles.commentInput}
                 value={message}
                 onChangeText={(text) => setMessage(text)}
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   allMessages: {
-    width:"100%"
+    width: "100%"
   },
   header: {
     width: "90%",
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#939087",
     width: "90%",
     padding: 8,
-   
+
     color: "#fff",
     textAlign: "left",
     borderTopLeftRadius: 5,
@@ -212,11 +212,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 1,
-    zIndex: 1, 
+    zIndex: 1,
   },
   memberBox: {
     alignItems: "center",
-    margin:10,
+    margin: 10,
   },
   ImageContainer: {
     width: 70,
@@ -379,14 +379,9 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   loaderContainer: {
-    position: "absolute", 
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    backgroundColor: (255, 255, 255, 0.7),
+    flex: 1,
     justifyContent: "center",
-    alignItems: "center", 
-    backgroundColor: "rgba(0, 0, 0, 0)", 
-    zIndex: 10,    
+    alignItems: "center",
   },
 });

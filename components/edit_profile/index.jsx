@@ -16,13 +16,13 @@ const InputField = ({ placeholder, value, onChangeText }) => (
         onChangeText={onChangeText}
     />
 );
- 
+
 const ActionButton = ({ title, onPress, style }) => (
     <TouchableOpacity style={[styles.actionButton, style]} onPress={onPress}>
         <Text style={styles.buttonText}>{title}</Text>
     </TouchableOpacity>
 );
- 
+
 const Index = () => {
     const navigation = useNavigation()
     const [userId, setUserId] = useState('');
@@ -33,7 +33,7 @@ const Index = () => {
     const [profilePhoto, setprofilePhoto] = useState(null);
     const dispatch = useDispatch();
     const { editProfile, status } = useSelector((state) => state.editProfile);
- 
+
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -46,7 +46,7 @@ const Index = () => {
                 console.error('Failed to fetch user ID:', error);
             }
         };
- 
+
         fetchUserData();
     }, [dispatch]);
     const handleDelete = () => {
@@ -65,9 +65,9 @@ const Index = () => {
                         dispatch(deleteProfile(userId))
                             .unwrap()
                             .then(async () => {
-                                await AsyncStorage.clear();  // Clear AsyncStorage
+                                await AsyncStorage.clear(); 
                                 Alert.alert("Profile deleted successfully!");
-                                navigation.navigate('sign-in');  // Navigate to Sign-In page
+                                navigation.navigate('sign-in');
                             })
                             .catch((error) => {
                                 Alert.alert("Failed to delete profile", error.message);
@@ -78,18 +78,18 @@ const Index = () => {
             { cancelable: false }
         );
     };
- 
+
     useEffect(() => {
         if (editProfile) {
-            setUserName(editProfile.userName||'');
-            setFirstName(editProfile.firstName||'');
-            setLastName(editProfile.lastName||'');
-            setEmail(editProfile.email||'');
+            setUserName(editProfile.userName || '');
+            setFirstName(editProfile.firstName || '');
+            setLastName(editProfile.lastName || '');
+            setEmail(editProfile.email || '');
             // setprofilePhoto(editProfile.profilePhoto||null);
         }
     }, [editProfile]);
- 
- 
+
+
     const chooseImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (status === 'granted') {
@@ -118,7 +118,7 @@ const Index = () => {
             );
         }
     };
- 
+
     const openCamera = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
         if (status === 'granted') {
@@ -127,9 +127,9 @@ const Index = () => {
                 aspect: [4, 3],
                 quality: 0.5,
             });
- 
+
             if (!result.canceled) {
-                setprofilePhoto(result.assets[0].uri);
+                setprofilePhoto(result.assets[0]);
             }
         } else {
             Alert.alert(
@@ -138,7 +138,7 @@ const Index = () => {
             );
         }
     };
- 
+
     const openImagePicker = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -146,9 +146,9 @@ const Index = () => {
             aspect: [4, 3],
             quality: 0.5,
         });
- 
+
         if (!result.canceled) {
-            setprofilePhoto(result.assets[0].uri);
+            setprofilePhoto(result.assets[0]);
         }
     };
     const handleUpdate = async () => {
@@ -159,38 +159,34 @@ const Index = () => {
             lastName,
             email,
         };
-   
-        // Ensure profilePhoto is available and contains all necessary data
+  
+
         if (profilePhoto && profilePhoto.uri) {
             userData.profilePhoto = {
                 uri: profilePhoto.uri,
-                name: profilePhoto.fileName || profilePhoto.uri.split('/').pop(),  // Fallback if fileName is not available
-                type: profilePhoto.mimeType || `image/${profilePhoto.uri.split('.').pop()}`,
+                name: profilePhoto.fileName,
+                type: profilePhoto.mimeType
             };
         }
-   
         dispatch(updateEditProfile(userData))
             .unwrap()
             .then(() => {
-                Alert.alert("Profile updated successfully!");
                 dispatch(fetchEditProfile(userId));
             })
-            .catch((error) => {
-                Alert.alert("Failed to update profile", error.message);
-            });
+           
     };
-   
+
     // UseEffect to ensure profilePhoto is fully set before triggering the update
-   
-   
- 
- 
- 
- 
+
+
+
+
+
+
     if (status === "loading") return <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
     </View>;
- 
+
     return (
         <View style={styles.container}>
             <Header editProfile={editProfile} />
@@ -208,8 +204,11 @@ const Index = () => {
                             <TouchableOpacity style={styles.chooseButton} onPress={chooseImage}>
                                 <Text>Choose File</Text>
                             </TouchableOpacity>
-                            {profilePhoto ? (
-                                <Image source={{ uri: profilePhoto }} style={styles.profilePhoto} />
+                            {profilePhoto?.uri || editProfile?.profilePhoto ? (
+                                <Image
+                                    source={profilePhoto?.uri ? { uri: profilePhoto.uri } : { uri: editProfile.profilePhoto }}
+                                    style={styles.profilePhoto}
+                                />
                             ) : (
                                 <Text>No file chosen</Text>
                             )}
@@ -227,12 +226,12 @@ const Index = () => {
         </View>
     );
 };
- 
+
 export default Index;
- 
+
 const styles = StyleSheet.create({
     container: {
-       
+
         flex: 1,
         backgroundColor: "#f2f1ed",
     },
@@ -254,18 +253,19 @@ const styles = StyleSheet.create({
         marginVertical: 15,
         width: "85%",
         backgroundColor: "#454134",
-        padding: 10,
-        borderRadius: 3,
+        borderRadius: 5,
+        padding: 8,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
-        elevation: 3,
+        elevation: 1,
     },
     headerText: {
+        fontFamily: "nova",
         fontSize: 18,
         textAlign: "center",
-        color: "#d0d0ce",
+        color: "white",
         textTransform: "uppercase"
     },
     contentWrapper: {
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     actionButton: {
         backgroundColor: "#ebb04b",
         paddingHorizontal: 35,
-        paddingVertical: 10,
+        paddingVertical: 15,
         textTransform: "uppercase",
         borderRadius: 3,
         shadowColor: "#000",
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
         marginTop: 10
     },
     deleteButton: {
-        backgroundColor: "#ff4d4d",
+        backgroundColor: "red",
     },
     buttonText: {
         textTransform: "uppercase",
