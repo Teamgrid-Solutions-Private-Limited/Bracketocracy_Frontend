@@ -38,11 +38,9 @@ const styles = StyleSheet.create({
         fontFamily: "nova",
         fontSize: 14,
         color: "#ebb04b",
-        // textTransform: "uppercase",
     },
     statsValue: {
         fontFamily: "nova",
         fontSize: 16,
-        // textTransform: "uppercase"
     },
 })

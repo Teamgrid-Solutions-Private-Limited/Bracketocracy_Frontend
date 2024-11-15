@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Checkbox from 'expo-checkbox';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Pressable } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { createUpdateLeagues, getLeagues } from '../redux/leaguesSlice';
@@ -22,7 +22,6 @@ const CreateLeagueModal = ({ visible, onClose, currentLeague, title, setEmails, 
     const handleSubmit = async (actionType) => {
         const userId = await AsyncStorage.getItem('userId');
         const cleanedTitle = title.trim();
-        // Split emails, remove whitespace, filter empty strings, and remove duplicates
         const emailArray = [...new Set(emails
             .split(',')
             .map(email => email.trim())

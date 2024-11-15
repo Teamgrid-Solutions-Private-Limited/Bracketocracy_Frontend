@@ -6,6 +6,7 @@ import {
   Text,
   Image,
   Pressable,
+  Alert,
 } from "react-native";
 import {useSelector } from "react-redux";
 import { SvgUri } from "react-native-svg";
@@ -18,9 +19,8 @@ const ChampionMatch = ({
   disabled,
   handleTeamSelect,
   rounds,
-  bet,
-  setBet
 }) => {
+
   const [showModal, setShowModal] = useState(false);
   const [teamId, setTeamId] = useState(null);
   const [matchId, setMatchId] = useState(null);
@@ -50,14 +50,38 @@ const ChampionMatch = ({
   }
   const closeModal = () => {
     setShowModal(false);
-    setBet(0);
   }
 
   const handleSelect = (matchId, teamId, betValue) => {
-    if (betValue <= 0 || betValue > userRank?.userId.score) {
+    if (betValue < 0 || betValue > userRank?.userId.score) {
       alert("Bet must be between zero and user points");
       return
     }
+    else if (betValue == 0) {
+      Alert.alert(
+        "Confirmation",
+        "You are about to submit a bet of 0 points. Are you sure you want to proceed? Select 'Add Points' to add points or 'Confirm' to submit 0 points.",
+        [
+          {
+            text: "Add Points",
+            onPress: () => openModal(),
+            style: "cancel"
+          },
+          {
+            text: "Confirm",
+            onPress: () => {
+              setMatchId(matchId);
+              setTeamId(teamId);
+              handleTeamSelect(matchId, teamId, betValue);
+              closeModal();
+            },
+            style: "default"
+          }
+        ],
+        { cancelable: true }
+      );
+    }
+    
     else {
       setMatchId(matchId);
       setTeamId(teamId);
@@ -162,8 +186,10 @@ const ChampionMatch = ({
         </Pressable>
       </View>
       <PlaceBetModal
-        bet={bet}
-        setBet={setBet}
+        // bet={bet}
+        // setBet={setBet}
+        val={val}
+        userBets={userBets}
         showModal={showModal}
         closeModal={closeModal}
         handleSelect={handleSelect}

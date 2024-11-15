@@ -29,9 +29,6 @@ const Index = ({ navigation }) => {
     const [inviteEmails, setInviteEmails] = useState('');
     const [allowInvitation, setAllowInvitation] = useState(false);
     const [itemsToShow, setItemsToShow] = useState(10);
-    // const {newSeasonIds}=useSelector((state) => state.seasons);
-
-
     const openModal = (action) => {
         if (action === "invite") {
             setInviteModalVisible(true);

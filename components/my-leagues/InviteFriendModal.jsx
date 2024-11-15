@@ -104,7 +104,6 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     membersInput: {
-        // height: 150,
         textAlignVertical: 'top',
         paddingTop: 10,
     },

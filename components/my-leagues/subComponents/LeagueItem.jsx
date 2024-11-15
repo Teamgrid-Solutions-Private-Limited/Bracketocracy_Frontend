@@ -54,12 +54,7 @@ const LeagueItem = ({ onEdit, league, isExpanded, openModal, handleDelete, invit
                     <Text style={styles.memberHeaderText}>Points</Text>
                 </View>
             </View>
-            {/* {league.userId?.length > 0 && ( */}
-            {/* {profiles?.map((profile) => ( */}
                 <MemberItem userIds={league.userId} league={league} handleDeleteMembers={handleDeleteMembers} userMain={userMain}  />
-            {/* ))} */}
-
-            {/* )} */}
             <View style={styles.chckboxContainer}>
                 <Checkbox
                     value={league.allowInvitation}

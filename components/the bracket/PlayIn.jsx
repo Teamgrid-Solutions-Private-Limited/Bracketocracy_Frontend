@@ -12,8 +12,9 @@ const PlayIn = ({ matches, rounds, teams }) => {
   const [disabled, setDisabled] = useState(false);
   const dispatch = useDispatch();
   const [userId, setId] = useState(null);
-  const [bet, setBet] = useState(0);
-  
+  const { userBets } = useSelector((state) => state.bet
+  );
+
   useEffect(() => {
     const getId = async () => {
       try {
@@ -25,13 +26,7 @@ const PlayIn = ({ matches, rounds, teams }) => {
     };
     getId();
   }, []);
-
-
-  const { userBets } = useSelector((state) => state.bet
-  );
-
   const newSeasonIds = useSelector((state) => state.seasons.newSeasonIds.toString());
-
   useEffect(() => {
     const { remainingTimeInMs } = getRemainingTime(
       rounds?.biddingEndDate
@@ -41,9 +36,68 @@ const PlayIn = ({ matches, rounds, teams }) => {
     } else setDisabled(false);
   }, [rounds?.biddingEndDate]);
 
+  //   const handleTeamSelect = (matchId, teamId, betValue) => {
+  //     const teamIdSame = userBets?.find((bet) => {
+  //       return bet.matchId._id === matchId && bet.selectedWinner._id === teamId && bet.matchId.roundSlug !== "round-6"
+  //     });
+
+  //     if (teamIdSame) {
+  //       return;
+  //     }
+  //     const status = 0;
+  //     if (!disabled && userId) {
+  //       const existingBet = userBets?.find(
+  //         (bet) => bet.matchId._id === matchId && bet.userId === userId
+  //       );
+
+  //       if (existingBet) {
+  //         dispatch(updateRound({
+  //           matchId,
+  //           userId,
+  //           status,
+  //           id: existingBet._id,
+  //           selectedWinner: teamId,
+  //           seasonId: newSeasonIds,
+  //           betScore: betValue
+  //         }))
+  //           .unwrap()
+  //           .then(() => {
+  //             dispatch(fetchUserBets({ userId }));
+  //           })
+  //           .catch((error) => {
+  //             console.error("Failed to update bet:", error);
+  //           });
+  //       } else {
+  //         dispatch(
+  //           placeBet({
+  //             matchId,
+  //             userId,
+  //             selectedWinner: teamId,
+  //             status,
+  //             seasonId: newSeasonIds,
+  //             betScore: betValue
+  //           })
+  //         )
+  //           .unwrap()
+  //           .then(() => {
+  //             dispatch(fetchUserBets({ userId }));
+  //           })
+  //           .catch((error) => {
+  //             console.error("Failed to place bet:", error);
+  //           });
+  //       }
+  //     }
+  //  setBet(betValue);
+
+  //   };
+
   const handleTeamSelect = (matchId, teamId, betValue) => {
     const teamIdSame = userBets?.find((bet) => {
-      return bet.matchId._id === matchId && bet.selectedWinner._id === teamId;
+      return (
+        bet.matchId._id === matchId &&
+        bet.selectedWinner._id === teamId &&
+        bet.matchId.roundSlug !== "round-6"
+      );
     });
 
     if (teamIdSame) {
@@ -55,15 +109,22 @@ const PlayIn = ({ matches, rounds, teams }) => {
         (bet) => bet.matchId._id === matchId && bet.userId === userId
       );
 
+      const isRound6 = matches && matches.find((match) => match._id === matchId && match?.round?.slug === "round-6");
+      const payload = {
+        matchId,
+        userId,
+        status,
+        selectedWinner: teamId,
+        seasonId: newSeasonIds,
+      };
+
+      if (isRound6) {
+        payload.betScore = betValue;
+      }
       if (existingBet) {
         dispatch(updateRound({
-          matchId,
-          userId,
-          status,
+          ...payload,
           id: existingBet._id,
-          selectedWinner: teamId,
-          seasonId: newSeasonIds,
-          betScore: betValue
         }))
           .unwrap()
           .then(() => {
@@ -73,16 +134,7 @@ const PlayIn = ({ matches, rounds, teams }) => {
             console.error("Failed to update bet:", error);
           });
       } else {
-        dispatch(
-          placeBet({
-            matchId,
-            userId,
-            selectedWinner: teamId,
-            status,
-            seasonId: newSeasonIds,
-            betScore: betValue
-          })
-        )
+        dispatch(placeBet({ ...payload }))
           .unwrap()
           .then(() => {
             dispatch(fetchUserBets({ userId }));
@@ -92,19 +144,16 @@ const PlayIn = ({ matches, rounds, teams }) => {
           });
       }
     }
- setBet(0);
- 
   };
-
 
 
   const renderLogo = (logoUri) => {
     const isSvg = logoUri?.endsWith(".svg");
     if (isSvg) {
       return (
-        <SvgUri uri={logoUri} style={styles.teamLogo} resizeMode="contain" width={styles.teamLogo.width} 
-        height={styles.teamLogo.height} 
-         />
+        <SvgUri uri={logoUri} style={styles.teamLogo} resizeMode="contain" width={styles.teamLogo.width}
+          height={styles.teamLogo.height}
+        />
       );
     } else {
       return (
@@ -115,7 +164,7 @@ const PlayIn = ({ matches, rounds, teams }) => {
         />
       );
     }
-}
+  }
 
   return (
     <View style={styles.matchContainer}>
@@ -293,17 +342,17 @@ const PlayIn = ({ matches, rounds, teams }) => {
           </View>
 
         ) : (
-         <ChampionMatch 
-         key={index}
-         rounds={rounds} 
-         teams={teams} 
-         val={val}
-         userBets={userBets}
-         disabled={disabled}
-         handleTeamSelect={handleTeamSelect}
-         bet={bet}
-         setBet={setBet}
-         />
+          <ChampionMatch
+            key={index}
+            rounds={rounds}
+            teams={teams}
+            val={val}
+            userBets={userBets}
+            disabled={disabled}
+            handleTeamSelect={handleTeamSelect}
+          // bet={bet}
+          // setBet={setBet}
+          />
 
         )
 

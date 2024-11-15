@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, TextInput, Pressable, ActivityIndicator, Alert } from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView, TextInput, Pressable, Alert } from "react-native";
 import profile from "../../assets/images/profile.png";
 import user from "../../assets/images/userIcon.png";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -11,7 +11,6 @@ import Footer from "../footer";
 import { fetchMultipleProfiles } from "../redux/leaguesSlice";
 import { formatDistanceToNow } from "date-fns";
 import Loader from "../loader/Loader";
-import TransparentLoader from "../loader/TransparentLoader";
 const MessageItems = ({ items, profiles }) => {
   const profileData = useMemo(() => profiles.find((p) => p._id === items.userId[0]), [items?.userId, profiles]);
 
@@ -25,47 +24,43 @@ const MessageItems = ({ items, profiles }) => {
 
 const Message = () => {
   const { leagesInMessege } = useSelector((state) => state.message);
-  const { Messages, status } = useSelector((state) => state.message);
+  const { Messages } = useSelector((state) => state.message);
   const { allUserId } = useSelector((state) => state.leagues);
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(true); // Combined loading state
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
 
 
 
   const handleSendMessage = async () => {
-    const trimmedMessage = message.trim(); // Trim both ends of the message
+    const trimmedMessage = message.trim();
 
     if (!trimmedMessage) {
-      // If the message is empty, show an alert
       Alert.alert("Error", "Message cannot be empty");
       return;
     }
 
     const userId = await AsyncStorage.getItem("userId");
     const leagueId = leagesInMessege._id;
-    dispatch(createMessages({ leagueId, userId, message: trimmedMessage })) // Use the trimmed message
+    dispatch(createMessages({ leagueId, userId, message: trimmedMessage }))
       .unwrap()
       .then(() => dispatch(getMessages(leagesInMessege._id)));
-    setMessage(""); // Clear the input field after sending
+    setMessage("");
   };
 
-
-  // Fetch messages and profiles when league changes
   useEffect(() => {
     if (leagesInMessege) {
       setLoading(true);
       Promise.all([
         dispatch(getMessages(leagesInMessege._id)),
         dispatch(fetchMultipleProfiles(leagesInMessege.userId))
-      ]).finally(() => setLoading(false)); // Set loading to false after both promises resolve
+      ]).finally(() => setLoading(false));
     }
   }, [leagesInMessege, dispatch]);
 
   const profiles = useMemo(() => allUserId.filter(profile => leagesInMessege?.userId.includes(profile._id)).sort((a, b) => b.score - a.score), [allUserId, leagesInMessege?.userId]);
 
   if (loading) {
-    // Display a loader when fetching data
     return (
       <View style={styles.loaderContainer}>
         <Loader size={50} />
@@ -154,7 +149,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollView: {
-    // paddingVertical: 10,
     backgroundColor: "#ffffff",
     position: "relative",
     zIndex: 2,
@@ -335,7 +329,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     borderRadius: 5,
     padding: 10,
-    // gap: 3,
   },
   messageSender: {
     fontWeight: "bold",
@@ -344,8 +337,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     flexWrap: "wrap",
     width: "80%",
-    // maxWidth: "100%",
-    // lineHeight: 20,
   },
   time: {
     fontSize: 8,

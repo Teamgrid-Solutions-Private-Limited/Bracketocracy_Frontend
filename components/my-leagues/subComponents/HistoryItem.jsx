@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { StyleSheet, Text, View, ScrollView, ActivityIndicator } from "react-native";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,7 +11,7 @@ import { getTeams } from "@/components/redux/teamSlice";
 const HistoryItem = () => {
   const dispatch = useDispatch();
   const [userId, setUserId] = useState(null);
-  const { userBets } = useSelector((state) => state.bet);
+  const { userBets,loading } = useSelector((state) => state.bet);
 
   useEffect(() => {
     const getId = async () => {
@@ -48,6 +48,7 @@ const HistoryItem = () => {
   );
 
   return (
+    <View style={{ flex: 1 ,position: 'relative'}}>
     <View style={styles.container}>
       <Header />
       <ScrollView contentContainerStyle={styles.contentContainer}>
@@ -55,14 +56,10 @@ const HistoryItem = () => {
           <Text style={styles.sectionHeaderText}>MY SELECTIONS</Text>
         </View>
         {[...userBets]?.reverse().map((match) => {
-          // Skip rendering if matchId is null or undefined
           if (!match.matchId) {
-            console.warn("Missing matchId for match:", match); // Debug log
+            console.warn("Missing matchId for match:", match);
             return null;
           }
-
-          // Only render if match has a decided winner
-          // if (match.matchId?.decidedWinner) {
           return (
             <View key={match._id} style={styles.card}>
               <View style={styles.cardRow}>
@@ -103,26 +100,27 @@ const HistoryItem = () => {
               <View style={styles.cardRow}>
                 <Text style={styles.label}>POINTS EARNED</Text>
                 <Text style={styles.value}>
-                  {match.points}
+                  {match.matchId.roundSlug == "round-6" ?(match.matchId.decidedWinner == match.selectedWinner._id?match.points:-match.betScore) :match.points }
                 </Text>
               </View>
               {match.matchId.roundSlug == "round-6" && (
                 <View style={styles.cardRow}>
-                  <Text style={styles.label}>POINTS DEDUCTED</Text>
+                  <Text style={styles.label}>BET POINTS</Text>
                   <Text style={styles.value}>
-                    {match.matchId.roundSlug == "round-6" && match.betScore}
+                    {match.matchId.roundSlug == "round-6" && match.betScore }
                   </Text>
                 </View>
               )}
 
             </View>
           );
-          // } else {
-          //   return null;
-          // }
         })}
       </ScrollView>
       <Footer />
+    </View>
+    {loading && <View style={styles.loaderOverlay}>
+          <ActivityIndicator size="large" color="#d38f14" />
+        </View>}
     </View>
   );
 };
@@ -182,5 +180,16 @@ const styles = StyleSheet.create({
   },
   vsText: {
     marginHorizontal: 5,
+  },
+  loaderOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 1,
   },
 });

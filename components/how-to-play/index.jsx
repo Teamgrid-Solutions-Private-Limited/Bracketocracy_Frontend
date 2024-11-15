@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Entypo } from '@expo/vector-icons';
 import Footer from '../footer';
 import Header from '../header';

@@ -45,14 +45,12 @@ const Index = (props) => {
           console.log("User access token:", userAccessToken);
           await AuthSession.revokeAsync(
             {
-              token: userAccessToken, // Replace this with the actual access token
+              token: userAccessToken,
             },
             {
               revocationEndpoint: 'https://oauth2.googleapis.com/revoke',
             }
           );
-      
-          // Perform any additional logout actions here, like clearing the Redux or AsyncStorage state.
           console.log("Logged out from Google");
         } catch (error) {
           console.error("Failed to log out", error);
@@ -65,7 +63,6 @@ const Index = (props) => {
          await googleLogout();
             dispatch(resetLeagues());
             dispatch(logOut());
-           
             props.navigation.replace("sign-in")
         }
         else {
@@ -174,7 +171,6 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     bottomWrapper: {
-        // marginTop: 20,
         alignItems:'flex-end',
         flex: 1,
         padding: 20,

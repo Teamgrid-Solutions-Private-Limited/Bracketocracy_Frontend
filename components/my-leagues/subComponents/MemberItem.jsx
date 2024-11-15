@@ -1,8 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { deleteLeaguesUser, fetchMultipleProfiles, getLeagues } from "@/components/redux/leaguesSlice";
-import { StyleSheet, View, Text, ActivityIndicator, Image } from "react-native";
+import {  fetchMultipleProfiles } from "@/components/redux/leaguesSlice";
+import { StyleSheet, View, Text, Image } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import profileImage from '../../../assets/images/EmptyProfile.png';
 import Loader from "@/components/loader/Loader";
